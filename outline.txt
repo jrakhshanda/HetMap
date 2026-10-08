@@ -1,0 +1,279 @@
+# HetMap paper — working outline
+
+This document is the agreed shape of the HetMap paper. It records what each
+section should contain, what is being changed relative to the current .tex,
+and what is out of scope. Edits proceed section by section, one at a time.
+
+Status legend for each block: **keep** (no change), **light revise** (small
+edits, mostly wording), **restructure** (reorganize existing content),
+**rewrite** (substantially new text over the same ground), **new** (empty
+section that needs content), **cut** (currently present, remove from paper).
+
+---
+
+## Revised research questions
+
+- **RQ1.** Does representing software artifacts as a heterogeneous graph of
+  folders, files, members, and typed dependencies improve semi-supervised
+  mapping performance over graph-free and single-relation graph baselines?
+
+- **RQ2.** How much does each structural source — folder organization,
+  member-level information, and file-level dependencies — contribute to
+  mapping performance when node features are held fixed?
+
+- **RQ3.** How does the kind of information encoded in node features —
+  lexical identifiers, dependency-topological position, or pretrained code
+  semantics — affect mapping performance, and how does its contribution
+  interact with the amount of graph structure available?
+
+RQ3 is the change of substance. It moves from "how does node feature
+initialization strategy affect performance" (a bag that could hold anything)
+to naming the three kinds of information a node feature can carry, which is
+what the four initializers (Word2Vec, node2vec, UniXcoder zero-shot,
+UniXcoder fine-tuned) actually vary along.
+
+---
+
+## Section 1. Abstract — **revise (defer)**
+
+Rewrite once the rest of the paper settles. The current abstract references
+"top-down architecture recovery" and doesn't reflect the RQ3 signal-kinds
+framing or the actual findings. No specific edits yet.
+
+## Section 2. Introduction — **light revise**
+
+Problem framing (drift, SAR/C2A distinction, distributed signals) is fine
+and matches the Kappa. Only the RQ list at the end and the contributions
+enumeration need to be aligned with the revised RQs above.
+
+## Section 3. Background — **light revise**
+
+Two adjustments:
+
+- Keep the heterogeneous graph formalism, meta-relations, and HGT
+  introduction unchanged.
+- Extend the node feature paragraph (currently sets up UniXcoder and
+  dependency-guided fine-tuning only) so that all three feature families —
+  lexical, dependency-topological, code-semantic — are motivated before the
+  reader reaches the methodology section. Node2vec needs its one-paragraph
+  introduction here.
+
+## Section 4. Methodology
+
+### 4.1 Problem formulation — **keep**
+
+Semi-supervised node classification over the heterogeneous graph. Clean as
+written.
+
+### 4.2 Heterogeneous graph construction — **keep**
+
+Node types, relation types, Table 1 (structural and static dependency
+relations). No changes.
+
+### 4.3 Graph variants — **keep**
+
+File / FM / FF / FFM as the RQ2 ablation matrix, Table 2. No changes.
+
+### 4.4 Node feature initialization — **restructure**
+
+This is the largest structural change in the paper. Current subsections
+(folder features, Word2Vec, UniXcoder variants) are reorganized as:
+
+- **Folder node features.** Existing content, kept.
+
+- **Node features by information type.** New umbrella framing paragraph
+  naming the three families and stating that each captures a qualitatively
+  distinct source of architectural evidence.
+
+  - *Lexical:* Word2Vec. Existing content, kept.
+
+  - *Dependency-topological:* Node2vec. New subsection. Node2vec is trained
+    on the file-level dependency graph. In FM and FFM variants, member
+    nodes inherit the embedding of their parent file, because a separately
+    trained node2vec on the sparse member-level graph would produce noisier
+    embeddings and the paper does not argue for member-level topological
+    features. State this design choice explicitly.
+
+  - *Code-semantic:* UniXcoder zero-shot and dependency-guided fine-tuned.
+    Existing content, tightened. The `file_pkg_ft` path-aware pooling
+    remains a subvariant of fine-tuned UniXcoder and its role in the RQ1
+    table is stated explicitly here rather than left implicit.
+
+### 4.5 HetMap architecture — **keep**
+
+Type-specific projection, HGT layer, prediction head. No changes.
+
+### 4.6 Iterative learning framework — **keep**
+
+Self-training with pseudo-label revision. Algorithm 1. No changes.
+
+---
+
+## Section 5. Experiments
+
+### 5.1 Benchmark systems — **keep**
+
+Eleven open-source systems with GT mappings, Table 3 with homophily. No
+changes.
+
+### 5.2 Experimental configuration — **light revise**
+
+Add node2vec hyperparameters (walks per node, walk length, window, epochs,
+embedding dimension). Table 4 (self-training rounds and confidence
+thresholds) needs a row or column for node2vec.
+
+### 5.3 Baseline methods — **keep**
+
+MLP, GCN, GAT with concatenated Word2Vec and folder-path features. No
+changes.
+
+### 5.4 Feature-only MLP — **light revise**
+
+Extend the MLP baseline to four features: Word2Vec, node2vec, UniXcoder
+zero-shot, UniXcoder fine-tuned. This baseline is doing the critical work
+in RQ3 — it is what lets the paper conclude that at File-only, whichever of
+feature or structure carries the dependency signal, the other becomes
+redundant.
+
+### 5.5 Performance evaluation — **keep**
+
+Macro- and micro-F1, Mann-Whitney U, Holm correction, Cliff's delta. No
+changes.
+
+---
+
+## Section 6. Results
+
+### 6.1 RQ1 — Heterogeneous graph vs. baselines — **keep with one clarification**
+
+Table 5 (median macro/micro F1, 11 systems) and Table 6 (pairwise
+significance). HGT-FFM with UniXcoder fine-tuned (`file_pkg_ft` pooling)
+wins on 9 of 11 systems.
+
+One clarification: state explicitly, either in the table caption or in the
+paragraph above the table, that the UniXcoder-FT row in this table uses the
+path-aware `file_pkg_ft` pooling, because folder location is available in
+the FFM graph. Elsewhere in the paper, `file_ft` is the default. This is
+currently implicit and needs to be visible.
+
+### 6.2 RQ2 — Contribution of graph structure — **keep**
+
+File / FM / FF / FFM ablation at fixed Word2Vec plus the MLP-Word2Vec
+reference. The core finding — file-only HGT-Word2Vec underperforms
+MLP-Word2Vec, and folder structure closes the gap — is the sharpest
+finding in the paper and remains as-is.
+
+### 6.3 RQ3 — Contribution of node feature kind — **rewrite**
+
+Largest change in results. New shape:
+
+- **Primary comparison at File-only:** MLP baseline against HGT with each
+  of the four node feature families (W2V, n2v, UXC-ZS, UXC-FT). This is
+  where the signal-kinds finding lives: whichever feature already carries
+  the dependency-topological signal (n2v, UXC-FT) matches or exceeds MLP;
+  W2V and zero-shot UXC, which do not, fall behind at file-only.
+
+- **Secondary comparison at FM:** the same four features on the FM graph.
+  Shows whether adding member structure changes the picture and by how
+  much.
+
+- **Brief pointer forward** to Table 5's HGT-USX row for the FFM +
+  fine-tuned UniXcoder case, to close the loop on whether combining the
+  strongest features with the strongest graph compounds or saturates.
+
+The current RQ3 subsection (which was a UXC-focused comparison of zero-shot
+against fine-tuned) is absorbed into this broader four-way comparison
+rather than kept as its own separate subsection.
+
+---
+
+## Section 7. Discussion — **new**
+
+Currently empty. Should contain, in order:
+
+- **The mirror-image finding.** At file-only granularity, Word2Vec features
+  leave the dependency signal to be recovered by the graph and lose to a
+  graph-free MLP; node2vec and fine-tuned UniXcoder features already carry
+  that signal themselves and match the MLP baseline. Whichever of feature
+  or structure carries the dependency signal, the other becomes redundant.
+
+- **Folder structure dominates.** At fixed Word2Vec, adding folder nodes
+  (FF and FFM) closes the entire file-only gap. This has architectural
+  implications worth naming without overselling: folder organization is
+  strong evidence for module boundaries in these systems, and models that
+  ignore it pay a large price.
+
+- **Saturation on FFM with strong features.** Combining fine-tuned
+  UniXcoder with the FFM graph does not compound cleanly relative to
+  combining it with Word2Vec — the advantage narrows on FFM. This is
+  consistent with the redundancy point above and belongs in the discussion
+  rather than the results.
+
+- **System-specific outliers.** HDC, HDF, and Bash. Keep the current
+  honest discussion of where the method underperforms and why.
+
+## Section 8. Related work — **light revise**
+
+Currently solid. Only tweak: the transition from the previous C2A paper
+(`jabeen2025graph`) to HetMap should read as "we previously did X; the
+present paper extends that by adding Y specifically" rather than a soft
+citation.
+
+## Section 9. Threats to validity — **new**
+
+Currently empty. Should cover:
+
+- Ground-truth mappings from prior published work reflect one valid
+  decomposition among several possible ones.
+- Random labeled-set sampling; 100 runs and Holm-corrected tests reduce but
+  do not eliminate variance.
+- Node2vec is trained on the file-level dependency graph; member nodes in
+  FM inherit their parent file's embedding rather than receiving a
+  separately trained member-level node2vec. Justification: the member-level
+  graph is sparse and separately trained node2vec on it would produce
+  noisier embeddings without a corresponding conceptual gain, since the
+  paper does not argue for member-level topological features.
+- Optional single sentence: random-walk positional encoding on member nodes
+  was explored and did not change any conclusion.
+
+## Section 10. Conclusion — **rewrite (defer)**
+
+Rewrite once discussion settles. The current conclusion references
+"Word2Vec and LPE," which is stale relative to the current paper.
+
+---
+
+## Out of scope for the main paper
+
+- **RWPE / `HGT_FM_RWPE`** results. Empirically within a point of `HGT_FM`
+  on every system. Not in main results; optionally one sentence in threats.
+- **`FFM-Fine`** (element-level member granularity). Already justified as
+  a one-line note in methodology; not promoted to a results row.
+- **LPE** as a node feature. Present in the old draft and in the current
+  conclusion; removed everywhere.
+
+---
+
+## Suggested editing order (one section at a time)
+
+Editing proceeds in the order things depend on each other:
+
+1. Revise RQs in the introduction (line 62–66 of current .tex).
+2. Update contributions enumeration to match.
+3. Restructure methodology section 4.4 (node feature initialization) into
+   the three-family shape.
+4. Add node2vec hyperparameters to configuration and to Table 4.
+5. Extend feature-only MLP (5.4) to four features.
+6. Add the `file_pkg_ft` clarification to the RQ1 table caption or lead-in.
+7. Rewrite RQ3 results subsection with the primary File-only comparison and
+   the secondary FM comparison.
+8. Write the discussion section from scratch.
+9. Write the threats to validity section from scratch.
+10. Rewrite the abstract.
+11. Rewrite the conclusion.
+12. Light revise related work transition.
+13. Light revise the introduction's opening paragraphs if anything upstream
+    changed the frame.
+
+Each step above is one deliverable, one reaction, before proceeding to the
+next.

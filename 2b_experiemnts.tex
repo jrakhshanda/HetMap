@@ -1,0 +1,105 @@
+\section{Experiments}
+This section describes the benchmark systems, experimental configurations, directory-based reference predictor, controlled experiments, and evaluation procedures used to answer the three research questions.
+
+% ____________________ Datasets __________________________
+\subsection{Benchmark Systems\label{sec:benchmark_systems}}
+
+We evaluate the HGT-based model on ten open-source systems with published ground-truth (GT) mappings, which have been used in prior work on architecture recovery and C2A mapping~\cite{gaer,olsson2022automatically}. They differ in programming language, domain, size, and architectural granularity. We use published mappings because reliable C2A mappings require substantial manual effort and expert validation~\cite{garcia2013}, and because they allow comparison with previous studies.
+
+Table~\ref{tab:datasets} summarizes the system and graph properties. File-level dependency homophily $\mathcal{H}$ is the proportion of unique directed file pairs connected by a static dependency whose source and target files fall within the same GT module, from 0 (every dependency crosses a module boundary) to 1 (every dependency stays within a module). The mean number of outgoing typed dependency edges per file, $\langle k \rangle$, differs from homophily in counting different dependency types between the same file pair separately.
+
+The Java systems come from the benchmark of Olsson et al.~\cite{olsson2022automatically}. JabRef and TeamMates (T.Mates) were studied at the SAEroCon workshop in 2016 and 2017, where system experts provided the architectures and mappings\footnote{\label{fnsaerocon}\href{https://github.com/sebastianherold/SAEroConRepo}{https://github.com/sebastianherold/SAEroConRepo}}. ArgoUML (A.UML) and Lucene were studied by Brunet et al.~\cite{Brunet_gt} and Lenhard et al.~\cite{lenhard2019exploring}, was studied by Lenhard et al.~\cite{lenhard2019exploring}, and the Commons Imaging (C.Img) mapping was contributed as a test case for s4rdm3x tool~\cite{olsson2021s4rdm3x}. \footnote{\label{fns4rdm3x} Java labels are available at: \href{https://github.com/h0bb3/s4rdm3x}{https://github.com/h0bb3/s4rdm3x}}
+
+For Bash, we use the mapping curated by Garcia et al.~\cite{garcia2013}, who recovered an initial decomposition from documentation and source code and refined it with system experts through a certification process. The same work provides the Chromium mapping, developed with developers over approximately two years~\cite{deps_impact}.
+
+The HDF and HDC mappings were developed with industry partners and are part of the SARIF benchmark of Zhang et al.~\cite{sarif}, available in its replication package\footnote{\label{fnsarif}\href{https://github.com/anonymous2f4a9d/SARIF_FSE23/tree/main}{https://github.com/anonymous2f4a9d/SARIF\_FSE23}}.
+
+\begin{table}[t]
+\centering\small
+\caption{Subject systems and their file-level dependency graph properties. \(M\): number of modules in the GT architecture; \(|E|\): number of dependency edges, counted separately for each dependency type; \(\mathcal{H}\): dependency homophily; \(\langle k \rangle\): average node degree, \(|E|/|\text{Files}|\).\label{tab:datasets}}
+\renewcommand{\arraystretch}{1.1}
+\begin{adjustbox}{max width=\columnwidth}
+\begin{tabular}{c l l r r r r c r}
+\toprule
+& \textbf{System} & \textbf{Version} & \textbf{LoC} & $\boldsymbol{M}$ & \textbf{Files} & $\boldsymbol{|E|}$ & $\boldsymbol{\mathcal{H}}$ & $\boldsymbol{\langle k \rangle}$ \\
+\midrule
+ 
+\multirow{5}{*}{\rotatebox[origin=c]{90}{Java}}
+& A.UML   & r13713  & 62k & 14 & 766 & 9\,491 & 0.55 & 12.39\\
+& C.Img   & v1.0a2 & 18k & 21 & 329 & 4\,561 & 0.61 & 13.86 \\
+& JabRef  & v3.7 & 59k & 6 & 1\,013 & 16\,394 & 0.56 & 16.18 \\
+& Lucene  & r1075001 & 36k & 7 & 1\,054 & 18\,595 & 0.68 & 17.64 \\
+& SH-3D   & r002382 & 35k & 9 & 167 & 3\,912 & 0.36 & 23.43 \\
+& T.Mates & v5.11 & 55k & 15 & 778 & 17\,818 & 0.34 & 22.90 \\
+\midrule
+ 
+\multirow{2}{*}{\rotatebox[origin=c]{90}{C}}
+& Bash & 4.2 & 115k & 14 & 292 & 1\,222 & 0.58 & 4.18 \\
+& HDF  & 0e196f & 153k & 9 & 153 & 1\,239 & 0.35 & 8.10 \\
+\midrule
+ 
+\multirow{2}{*}{\rotatebox[origin=c]{90}{C++}}
+& HDC    & 46ff87 & 26k & 11 & 207 & 1\,117 & 0.63 & 5.40 \\
+& Chrome & svn-171054 & 11M & 69 & 18\,343 & 284\,435 & 0.58 & 15.51 \\
+ 
+\bottomrule
+\end{tabular}
+\end{adjustbox}
+\end{table}
+% _______________ Expeerimental Config ________________
+\subsection{Experimental Configuration\label{sec:exp_setup}}
+
+RQ1 and RQ2 use a low-label setting: a small subset of files has known module assignments, and the models predict the assignments of the remaining files. We repeat each experiment 100 times with a different initial labeled set. In each run, we randomly sample 5\% of the file nodes, with a minimum of 30 and a maximum of 200 files, and add one file from every GT module absent from the sample so that all modules are represented. All compared configurations use the same initial labeled set within a run, which allows paired comparisons, and the repetition measures sensitivity to which files are labeled. RQ3 uses separate controlled experiments, described in Section~\ref{sec:controlled_setup}.
+
+We evaluate four file representations: Word2Vec (W2V), Node2Vec (N2V), zero-shot UniXcoder (\zs{}) and fine-tuned UniXcoder (\ft{}; Section~\ref{sec:node_features}). W2V uses 128-dimensional vectors trained on the file names and identifiers of each system (Section~\ref{sec:node_w2v}). N2V learns 128-dimensional vectors from random walks on the undirected file-level dependency graph (walk length 30, 200 walks per file, $p=q=1$, window 15, five skip-gram epochs and five negative samples). Chromium uses 100 walks per file and one negative sample. The N2V vectors are computed once per system and reused across runs. For \ft{}, UniXcoder is fine-tuned with an InfoNCE temperature of $0.05$, AdamW with a learning rate of $2\times10^{-5}$, a batch size of eight, and two epochs with a fixed seed. Both UniXcoder variants encode file inputs with a 512-token limit and member inputs in overlapping 256-token windows with a stride of 128, mean-pooled before normalization, producing 768-dimensional features. Graph structures follow Section~\ref{sec:het_graph}.
+
+All mapping models are trained with Adam at a learning rate of $0.001$. They start with 100 supervised epochs and then use the iterative self-training procedure of Section~\ref{sec:iterative_learning}: pseudo-labels above a confidence threshold are added to the training set, and each round trains for 30 epochs. HGT and GAT use one layer, 256 hidden dimensions, four attention heads, and three self-training rounds with $\delta=0.95$. The MLP uses two hidden layers with 256 dimensions. Its W2V and \ft{} configurations use four rounds with $\delta=0.95$, whereas its N2V configuration uses three rounds with $\delta=0.90$.
+
+All mapping models are trained with Adam at a learning rate of $0.001$. They start with 100 supervised epochs and then use the iterative self-training procedure of Section~\ref{sec:iterative_learning}: pseudo-labels with confidence above $\delta=0.95$ are added to the training set in three rounds of 30 epochs each. GAT and HGT use one layer, 256 hidden dimensions, and four attention heads, and the MLP uses two hidden layers with 256 dimensions.
+
+% _______________ Directory Reference Predictor ________________
+\subsubsection{Directory Hierarchy Baseline\label{sec:dir_predictor}}
+
+To assess how much folder-based configurations exploit files in the same directory sharing a module, we use a rule-based predictor based on the directory hierarchy and the initial labeled files. For each unlabeled file, it assigns the most common module among labeled files in the same directory. If none are present, it searches the directory subtree and then the subtrees of its parent directories until it finds labeled files. Ties are resolved by the module's frequency in the complete initial labeled set and then alphabetically. If no labeled files are found, the predictor assigns the most common module in the complete initial labeled set. It uses the directory hierarchy, but not directory-name text, source code, embeddings, dependencies, or test labels.
+
+We apply the predictor to the first ten initial labeled sets of the 100 runs and compare its predictions with FM and FFM predictions. A model \emph{repairs} a predictor error when it correctly maps a file that the predictor maps incorrectly. It \emph{damages} a correct predictor assignment when it incorrectly maps a file that the predictor maps correctly. We report the percentage of predictor errors repaired and the percentage of correct predictor assignments damaged. Because these percentages have different denominators, their difference is not a net change in accuracy. For analysis, we also record whether each directory contains initial labeled files and whether all files in a directory belong to one GT module. These descriptors do not affect prediction.
+
+% _______________ Controlled Experiments ________________
+\subsubsection{Controlled Experiments\label{sec:controlled_setup}}
+RQ3 asks how information from neighboring files affects predictions, and how this depends on the model, the input vectors, and the training schedule. Each comparison pairs a condition with neighbor information \emph{on} and one with it \emph{off}, which share the system, initial labeled set, input vectors, and initial weights. Table~\ref{tab:rq3_design} summarizes the design.
+
+\begin{table}[ht]
+\centering\small
+\caption{Design of the controlled experiments for RQ3.\label{tab:rq3_design}}
+\renewcommand{\arraystretch}{1}
+\begin{adjustbox}{max width=\columnwidth}
+\begin{tabular}{@{}lll@{}}
+\toprule
+\textbf{Factor} & \textbf{Levels} & \textbf{Detail} \\
+\midrule
+\makecell[l]{Neighbor\\information} & On; off & \makecell[l]{Paired, same split\\and initial weights} \\
+\midrule
+Models & \multicolumn{2}{l}{HGT; \uhgt; GAT; \mlp} \\
+\midrule
+\multirow{2}{*}{\makecell[l]{Training\\schedule}} & Supervised-only & \makecell[l]{190 epochs on the\\initial labels} \\
+\cmidrule(l){2-3}
+ & Self-training & \makecell[l]{100 $+3 \times 30$ epochs,\\$\delta = 0.95$} \\
+\midrule
+\multirow{2}{*}{Repetition} & Splits & 10 \\
+ & N2V embedding seeds & 3 (42--44) \\
+\bottomrule
+\end{tabular}
+\end{adjustbox}
+\end{table}
+
+We compare four models that differ in how they use neighborhood information: HGT, untyped HGT (\uhgt), GAT, and a neighbor MLP (\mlp). HGT, as in the F configuration (Figure~\ref{fig:graph_variants_overview}), runs on the directed file graph and models dependency types separately. \uhgt removes both: it runs on the undirected file graph with all dependencies merged into a single edge type, so it tests whether types and direction matter. GAT runs on the same undirected graph and tests whether the aggregation matters when the graph is fixed. The \mlp uses no message passing: it receives the file's own vector and the mean of its neighbors' vectors, so it tests whether neighbor information helps without a graph model. For the graph models, \emph{off} removes the connections to other files; for the \mlp, it replaces the neighbor mean with zeros. All models use the architectures and optimizer settings of Section~\ref{sec:exp_setup}, with the training schedules of Table~\ref{tab:rq3_design}.
+
+To separate the effect of neighbors from that of pseudo-labeling, we run every comparison under two schedules of 190 epochs: supervised-only training on the initial labels, and self-training with 100 warm-up epochs followed by three rounds of 30 epochs that add pseudo-labels with confidence above 0.95.
+
+N2V vectors already encode the dependency graph, so we first test whether they carry more than each file's number of connections. On Lucene, JabRef, and Bash, we compare real N2V vectors with vectors learned from a degree-preserving rewired graph and with real vectors shuffled among files, using HGT with self-training. We then compare the four models on all nine systems with three N2V embeddings per system, trained with different random seeds, and ten splits. To test whether the effect depends on the vectors encoding dependencies, we repeat the comparisons with W2V and \zs{}, which are not built from the dependency graph, and with \ft{}, which is fine-tuned on it, using one embedding per system. The study contains 8,640 experiments.
+
+% _________ Evaluation  _________________
+\subsection{Performance Evaluation}
+The benchmark systems exhibit imbalanced module distributions, with some modules containing many files while others contain only a few. Accuracy can therefore overstate performance by giving disproportionate weight to the largest modules. Therefore, we evaluate mapping performance using the F1 score, which balances precision and recall. Precision is the proportion of predicted module assignments that are correct, and recall is the proportion of true assignments that are recovered, and F1 is their harmonic mean, appropriate when module sizes are imbalanced.
+ 
+We report F1 using both macro- and micro-averaging. Macro-F1 is computed independently for each architectural module and then averaged, giving equal weight to every module regardless of size. It is therefore sensitive to performance on small or underrepresented modules. Micro-F1 aggregates predictions across all files before computing F1, providing an overall measure that gives greater weight to larger modules. Reporting both metrics distinguishes class-balanced mapping performance from overall file-level performance.

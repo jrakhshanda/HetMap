@@ -1,0 +1,22 @@
+\begin{table*}[t]
+\centering\small
+\caption{Node2Vec follow-up: paired macro-/micro-F1 changes (pp). GAT on/off compares cross-file messages within GAT; GAT--HGT compares final messages-on scores on the same bidirectional untyped graph. Sup. and self denote equal-budget supervised-only and self-training schedules. Cells are medians of three embedding-seed medians, each from ten split differences; Notebook 08 reports seed ranges. All conditions run on the same server. Rounded zeros need not denote exact ties.\label{tab:gat_controls}}
+\begin{adjustbox}{max width=\textwidth}
+\begin{tabular}{lrrrr}
+\toprule
+System & GAT on/off: sup. & GAT--HGT: sup. & GAT on/off: self & GAT--HGT: self \\
+\midrule
+A.UML & +1.03/+1.73 & +0.15/-0.62 & +1.84/+1.80 & +1.48/+1.03 \\
+C.Img & +2.37/+1.55 & +1.41/+0.86 & +2.32/+2.94 & +2.06/+3.63 \\
+Jabref & +0.75/+1.36 & -1.05/-1.30 & +1.15/+1.98 & +0.04/0.00 \\
+Lucene & +1.13/+1.40 & +1.93/+1.85 & +1.60/+0.80 & +1.63/+0.65 \\
+SH-3D & +0.78/+2.59 & +2.19/-0.37 & +5.15/+5.19 & +5.77/+0.74 \\
+TeamMates & +3.12/+5.52 & +0.69/-0.68 & +3.21/+7.51 & +1.17/-0.07 \\
+Bash & -0.18/+2.16 & +0.86/+0.78 & +4.14/+4.51 & +2.62/+1.75 \\
+HDF & +2.54/+2.45 & +1.05/+2.47 & +3.86/+2.47 & +3.86/+3.25 \\
+Chrome & +1.80/+1.26 & +2.10/+1.02 & +4.62/+4.26 & +4.02/+2.37 \\
+HDC & +1.12/+0.87 & -0.99/-1.15 & +1.24/-1.16 & +1.36/-0.58 \\
+\bottomrule
+\end{tabular}
+\end{adjustbox}
+\end{table*}

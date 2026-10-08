@@ -1,0 +1,190 @@
+\begin{table}[ht]
+\centering
+\small
+\renewcommand{\arraystretch}{1.05}
+\caption{Median macro-F1/micro-F1 scores (\%) across 100 runs for the feature-only MLP using W2V, N2V, and contextual representation variants:\zs{} and \ft{}. Highlighted values indicate the highest score for each system and metric.\label{tab:rq1_mlp_features}}
+\begin{adjustbox}{width=\columnwidth}
+\setlength{\tabcolsep}{11pt}
+\begin{tabular}{lcccc}
+\toprule
+System & W2V & N2V & \zs{} & \ft{} \\
+\midrule
+A.UML
+& 34\,/\,60
+& \best{53}\,/\,\best{74}
+& 27\,/\,59
+& 40\,/\,69 \\
+
+C.Img
+& 24\,/\,40
+& \best{74}\,/\,\best{82}
+& 27\,/\,50
+& 39\,/\,62 \\
+
+JabRef
+& \best{43}\,/\,\best{80}
+& 37\,/\,76
+& 34\,/\,77
+& 37\,/\,\best{80} \\
+
+Lucene
+& 58\,/\,73
+& \best{65}\,/\,\best{80}
+& 48\,/\,66
+& 56\,/\,75 \\
+
+SH-3D
+& 23\,/\,43
+& 33\,/\,56
+& 39\,/\,64
+& \best{42}\,/\,\best{67} \\
+
+T.Mates
+& 30\,/\,58
+& 35\,/\,68
+& 31\,/\,67
+& \best{49}\,/\,\best{79} \\
+
+Bash
+& 6\,/\,31
+& \best{40}\,/\,\best{63}
+& 17\,/\,43
+& 25\,/\,52 \\
+
+HDF
+& 4\,/\,20
+& \best{49}\,/\,\best{55}
+& 36\,/\,41
+& 42\,/\,47 \\
+
+Chrome
+& 14\,/\,53
+& \best{39}\,/\,\best{72}
+& 11\,/\,51
+& 24\,/\,66 \\
+
+HDC
+& 30\,/\,50
+& 40\,/\,\best{71}
+& 26\,/\,48
+& \best{42}\,/\,70 \\
+\bottomrule
+\end{tabular}
+\end{adjustbox}
+\end{table}
+
+
+% \begin{table}[t]
+% \centering\small
+% \caption{Selected feature-only results: median macro-/micro-F1 (percent) over 100 runs. Historical protocols and coverage differ; these are descriptive scores, not isolated information-source effects.\label{tab:rq2_mlp_features}}
+% \begin{adjustbox}{max width=\columnwidth}
+% \begin{tabular}{lrrrr}
+% \toprule
+% System & W2V & N2V & UXC ZS & UXC FT \\
+% \midrule
+% A.UML & 33.91/60.19 & 53.08/73.88 & 23.99/56.72 & 34.97/64.18 \\
+% C.Img & 24.33/40.41 & 74.10/82.47 & 27.11/49.83 & 38.94/62.41 \\
+% Jabref & 42.59/80.27 & 37.37/75.82 & 33.83/77.14 & 36.55/79.74 \\
+% Lucene & 57.94/72.61 & 64.73/79.90 & 48.42/66.15 & 56.10/75.40 \\
+% SH-3D & 22.64/42.81 & 32.71/56.25 & 39.31/63.81 & 41.69/66.55 \\
+% T.Mates & 30.37/58.25 & 34.91/68.19 & 31.29/67.42 & 48.72/79.20 \\
+% Bash & 5.76/30.74 & 39.53/63.21 & 16.82/42.61 & 24.77/52.14 \\
+% HDF & 3.88/19.75 & 49.33/55.33 & 35.76/40.74 & 41.89/46.53 \\
+% Chrome & 14.32/52.64 & 38.54/71.80 & 10.70/50.88 & 23.54/65.53 \\
+% HDC & 29.82/50.43 & 39.92/71.10 & 25.73/47.70 & 42.20/70.11 \\
+% \bottomrule
+% \end{tabular}
+% \end{adjustbox}
+% \end{table}
+% \begin{table*}[htb]
+% \renewcommand{\arraystretch}{1}
+% \caption{Median macro-F1 (MA) and micro-F1 (MI) scores (\%) across 100 runs for the feature-only MLP, evaluated with no graph structure and no message passing. Each row uses a different node feature type: lexical (W2V), structural (N2V), and contextual embeddings from UniXcoder: zero-shot (\zs{}) and fine-tuned (\ft{}).\label{tab:rq2_mlp_features}}
+% \centering
+% \begin{adjustbox}{max width=\textwidth}
+% \begin{tabular}{l*{10}{|cc}}
+% \toprule
+% & \multicolumn{2}{c|}{A.UML}
+% & \multicolumn{2}{c|}{C.Img}
+% & \multicolumn{2}{c|}{JabRef}
+% & \multicolumn{2}{c|}{Lucene}
+% & \multicolumn{2}{c|}{SH-3D}
+% & \multicolumn{2}{c|}{T.Mates}
+% & \multicolumn{2}{c|}{Bash}
+% & \multicolumn{2}{c|}{HDF}
+% & \multicolumn{2}{c|}{Chrome}
+% & \multicolumn{2}{c}{HDC} \\
+% \cmidrule(lr){2-3}
+% \cmidrule(lr){4-5}
+% \cmidrule(lr){6-7}
+% \cmidrule(lr){8-9}
+% \cmidrule(lr){10-11}
+% \cmidrule(lr){12-13}
+% \cmidrule(lr){14-15}
+% \cmidrule(lr){16-17}
+% \cmidrule(lr){18-19}
+% \cmidrule(lr){20-21}
+% Method
+% & MA & MI
+% & MA & MI
+% & MA & MI
+% & MA & MI
+% & MA & MI
+% & MA & MI
+% & MA & MI
+% & MA & MI
+% & MA & MI
+% & MA & MI \\
+% \midrule
+
+% W2V
+% & 34 & 60
+% & 24 & 40
+% & \best{43} & \best{80}
+% & 58 & 73
+% & 23 & 43
+% & 30 & 58
+% & 6 & 31
+% & 4 & 20
+% & 14 & 53
+% & 30 & 50 \\
+
+% N2V
+% & \best{53} & \best{74}
+% & \best{74} & \best{82}
+% & 37 & 76
+% & \best{65} & \best{80}
+% & 33 & 56
+% & 35 & 68
+% & \best{40} & \best{63}
+% & \best{49} & \best{55}
+% & \best{38} & \best{72}
+% & 40 & \best{71} \\
+
+% \zs{}
+% & 24 & 57
+% & 27 & 50
+% & 34 & 77
+% & 48 & 66
+% & 39 & 64
+% & 31 & 67
+% & 17 & 43
+% & 36 & 41
+% & 11 & 51
+% & 26 & 48 \\
+
+% \ft{}
+% & 35 & 64
+% & 39 & 62
+% & 37 & \best{80}
+% & 56 & 75
+% & \best{42} & \best{66}
+% & \best{49} & \best{79}
+% & 25 & 52
+% & 42 & 46
+% & 24 & 66
+% & \best{42} & 70 \\
+
+% \bottomrule
+% \end{tabular}
+% \end{adjustbox}
+% \end{table*}

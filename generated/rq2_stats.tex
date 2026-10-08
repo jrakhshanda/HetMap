@@ -1,0 +1,69 @@
+\begin{table*}[t]
+\centering
+\caption{Change in macro- and micro-F1 as graph structure is added, by representation. Each row compares the later configuration with the earlier one. Each cell gives the median difference across ten systems in F1 points, followed in parentheses by the number of systems with a positive difference and the numbers of significant positive and negative differences. Shading marks the median difference: blue for gains, purple for losses, and darker for larger changes.\label{tab:rq2_steps}}
+\begin{adjustbox}{max width=\textwidth}
+\setlength{\tabcolsep}{12pt}
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{lrrrrrr}
+\toprule
+& \multicolumn{2}{c}{W2V} & \multicolumn{2}{c}{N2V} & \multicolumn{2}{c}{\ft{}} \\
+\cmidrule(lr){2-3}\cmidrule(lr){4-5}\cmidrule(lr){6-7}
+Step & Macro F1 & Micro F1 & Macro F1 & Micro F1 & Macro F1 & Micro F1 \\
+\midrule
+F $-$ MLP & \gc{45}+1.6 (6; 6/3) & \gc{45}+1.2 (6; 6/2) & \rc{45}$-$2.9 (1; 1/5) & \rc{70}$-$3.2 (2; 2/6) & \gc{45}+2.9 (8; 4/1) & \gc{25}+0.9 (7; 3/1) \\
+FM $-$ F & \gc{45}+1.5 (6; 5/3) & \gc{45}+2.6 (7; 6/3) & \gc{25}+0.9 (6; 4/0) & \gc{45}+2.3 (7; 6/2) & \gc{45}+1.5 (7; 2/2) & \gc{45}+1.8 (8; 6/2) \\
+FFM $-$ FF & \gc{100}+11.2 (10; 10/0) & \gc{70}+4.5 (10; 9/0) & \gc{70}+3.3 (8; 5/1) & \gc{45}+2.5 (8; 5/0) & \gc{70}+4.4 (8; 7/0) & \gc{45}+2.5 (10; 6/0) \\
+FF $-$ F & \gc{100}+32.9 (10; 10/0) & \gc{100}+33.7 (10; 10/0) & \gc{100}+18.1 (10; 10/0) & \gc{100}+16.7 (10; 10/0) & \gc{100}+27.9 (10; 10/0) & \gc{100}+19.8 (10; 10/0) \\
+FFM $-$ FM & \gc{100}+47.2 (10; 10/0) & \gc{100}+37.6 (10; 10/0) & \gc{100}+17.4 (10; 10/0) & \gc{100}+16.9 (10; 10/0) & \gc{100}+36.5 (10; 10/0) & \gc{100}+22.2 (10; 10/0) \\
+\bottomrule
+\end{tabular}
+\end{adjustbox}
+\end{table*}
+
+% \begin{table*}[t]
+% \centering
+% \caption{Changes in Macro and F1 as graph structure is added, by representation. Rows compare the later configuration with the earlier one. $\Delta$ is the median difference across nine systems; $+$ve counts positive differences; $\uparrow/\downarrow$ gives the numbers of significant positive and negative differences, respectively (Wilcoxon signed-rank test, Holm-adjusted, $\alpha=0.05$). Shading marks $\Delta$: blue for gains, purple for losses, darker for larger changes.\label{tab:rq2_steps}}
+% \begin{adjustbox}{max width=\textwidth}
+% \large
+% \begin{tabular}{lrrrrrrrrrrrrrrrrrrr}
+% \toprule
+% & \multicolumn{6}{c}{W2V} & \multicolumn{6}{c}{N2V} & \multicolumn{6}{c}{\ft{}} \\
+% \cmidrule(lr){2-7}\cmidrule(lr){8-13}\cmidrule(lr){14-19}
+% & \multicolumn{3}{c}{Macro F1} & \multicolumn{3}{c}{Micro F1}
+% & \multicolumn{3}{c}{Macro F1} & \multicolumn{3}{c}{Micro F1}
+% & \multicolumn{3}{c}{Macro F1} & \multicolumn{3}{c}{Micro F1} \\
+% \cmidrule(lr){2-4}\cmidrule(lr){5-7}
+% \cmidrule(lr){8-10}\cmidrule(lr){11-13}
+% \cmidrule(lr){14-16}\cmidrule(lr){17-19}
+% Step
+% & $\Delta$ & $+$ve & $\uparrow/\downarrow$
+% & $\Delta$ & $+$ve & $\uparrow/\downarrow$
+% & $\Delta$ & $+$ve & $\uparrow/\downarrow$
+% & $\Delta$ & $+$ve & $\uparrow/\downarrow$
+% & $\Delta$ & $+$ve & $\uparrow/\downarrow$
+% & $\Delta$ & $+$ve & $\uparrow/\downarrow$ \\
+% \midrule
+% F $-$ MLP
+% & \gc{45}+1.8 & 6 & 6/2 & \gc{45}+1.5 & 6 & 6/3
+% & \rc{45}$-$2.7 & 1 & 1/5 & \rc{45}$-$2.1 & 2 & 2/5
+% & \gc{70}+3.7 & 7 & 6/1 & \gc{45}+1.2 & 7 & 7/1 \\
+% FM $-$ F
+% & \gc{25}+0.5 & 5 & 5/4 & \gc{45}+2.7 & 6 & 6/3
+% & \gc{25}+0.1 & 5 & 3/1 & \gc{45}+1.5 & 6 & 6/3
+% & \gc{45}+1.5 & 6 & 6/2 & \gc{45}+1.6 & 7 & 7/2 \\
+% FFM $-$ FF
+% & \gc{100}+10.1 & 9 & 9/0 & \gc{70}+4.0 & 9 & 9/0
+% & \gc{45}+1.9 & 7 & 4/1 & \gc{45}+2.0 & 7 & 5/1
+% & \gc{70}+3.6 & 7 & 7/0 & \gc{45}+2.4 & 9 & 9/0 \\
+% FF $-$ F
+% & \gc{100}+29.9 & 9 & 9/0 & \gc{100}+38.7 & 9 & 9/0
+% & \gc{100}+19.0 & 9 & 9/0 & \gc{100}+16.4 & 9 & 9/0
+% & \gc{100}+27.7 & 9 & 9/0 & \gc{100}+20.6 & 9 & 9/0 \\
+% FFM $-$ FM
+% & \gc{100}+45.5 & 9 & 9/0 & \gc{100}+38.8 & 9 & 9/0
+% & \gc{100}+18.5 & 9 & 9/0 & \gc{100}+18.7 & 9 & 9/0
+% & \gc{100}+35.9 & 9 & 9/0 & \gc{100}+20.8 & 9 & 9/0 \\
+% \bottomrule
+% \end{tabular}
+% \end{adjustbox}
+% \end{table*}
