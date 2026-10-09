@@ -89,7 +89,7 @@ HGT shows the opposite pattern. With self-training, neighbor information reduces
 
 \begin{figure*}[t]
 \centering
-\includegraphics[width=0.98\textwidth]{Images/rq3_n2v.pdf}
+\includegraphics[width=1\textwidth]{Images/rq3_n2v.pdf}
 \caption{Change in macro-F1 (top) and micro-F1 (bottom) when neighbor information is switched on, using N2V vectors, across ten systems. Each point is the median over three embedding seeds of the median over ten paired splits. Bars show the range of the three seed medians, not a confidence interval. Positive values favor neighbor information. Filled markers indicate significant differences according to the signed-rank test with Holm correction across systems; hollow markers indicate non-significant differences.\label{fig:rq3_n2v}}
 \end{figure*}
 
@@ -97,20 +97,19 @@ HGT shows the opposite pattern. With self-training, neighbor information reduces
 
 The RQ2 and RQ3 results test different comparisons. In RQ2, F is compared with the graph-free MLP, which changes the predictor together with the available structure, and the later steps change the structure alone. RQ3 holds the predictor fixed and switches dependency neighbors on and off. A gain of F over the MLP in RQ2 can therefore come from the predictor and does not imply that HGT benefits when dependency neighbors are switched on.
 
-Figure~\ref{fig:rq3_agg} summarizes absolute self-training scores across the ten systems. GAT has the highest median micro-F1 and macro-F1 with every vector. Both GAT and the neighbor \mlp{} exceed the graph-free MLP in every median comparison, whereas HGT falls below it in macro-F1 with N2V and \ft{}. Across vectors, \ft{} is highest or tied, N2V is next, and W2V is lowest. Thus, neighbor processing improves the absolute scores of GAT and the neighbor \mlp{}, but does not eliminate the advantage of dependency-informed initializations; \ft{} with GAT gives the highest scores overall.
-
-\begin{figure}[t]
-\centering
-\includegraphics[width=1\linewidth]{Images/rq3_fig_compare_self.pdf}
-\caption{Micro-F1 (top) and macro-F1 (bottom) under self-training of the graph-free MLP, \mlp{}, GAT, and HGT with neighbor information on, for each input vector, across ten systems. Each point is one system (median over splits, and over embedding seeds for N2V), boxes show the spread across systems, and the values below the boxes are medians; bold marks the highest median in each group.\label{fig:rq3_agg}}
-\end{figure}
-
-\parg{Can self-training explain the model-dependent effect?} Neighbor effects retain their sign across the two schedules on most systems, with T.Mates under HGT as the main exception. Self-training therefore does not explain why neighbors help GAT and the \mlp{} but lower HGT.
-
-Self-training does, however, lower macro-F1 relative to supervised-only training at the same epoch budget: with N2V on all ten systems for HGT and on eight or nine for the other models, and with W2V and \ft{} in 66 of 80 system--model combinations. The loss comes with a fall in macro recall of 3 to 5 points, while micro-F1 changes by at most 1.2 points. A plausible reason is the skew in module sizes. Models are most confident on the large modules, so their pseudo-labels add mostly large-module files, which reinforces those modules and makes small ones harder to predict. This would keep micro-F1 steady while lowering macro-F1. We apply no class weighting and did not test this explanation.
-
 \input{generated/rq3_systems_body}
 
+
+\parg{Can self-training explain the model-dependent effect?} Neighbor effects retain their sign across the two schedules on most systems, with T.Mates under HGT as the main exception. Self-training therefore does not explain why neighbors help GAT and the \mlp{} but lower HGT. Self-training does, however, lower macro-F1 relative to supervised-only training at the same epoch budget: with N2V on all ten systems for HGT and on eight or nine for the other models, and with W2V and \ft{} in 66 of 80 system--model combinations. This loss is accompanied by a fall in macro recall of 3 to 5 points, while micro-F1 changes by at most 1.2 points.
+
+Figure~\ref{fig:rq3_agg} summarizes absolute supervised-only scores across the ten systems. GAT has the highest median micro-F1 and macro-F1 with every vector. Both GAT and the neighbor \mlp{} exceed the graph-free MLP in every median comparison, whereas HGT falls below it in macro-F1 with N2V and \ft{}. Across vectors, \ft{} is highest or tied, N2V is next, and W2V is lowest. Thus, the stronger scores of GAT and the neighbor \mlp{} do not eliminate the advantage of dependency-informed initializations; \ft{} with GAT gives the highest scores overall.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=1\linewidth]{Images/rq3_fig_compare_sup.pdf}
+\caption{Micro-F1 (top) and macro-F1 (bottom) under supervised-only training of the MLP, the neighbor \mlp{}, GAT, and HGT, with neighbor information on for the three predictors, for each input vector across ten systems. Each point is one system (median over splits, and over embedding seeds for N2V), boxes show the spread across systems, and the values below the boxes are medians; bold marks the highest median in each group.\label{fig:rq3_agg}}
+\end{figure}
+
 \begin{GrayBox}{Answer to RQ3.}
-Dependency neighbors carry architectural signal, but whether they improve mapping depends on how the predictor uses them. Real N2V vectors encode dependency structure beyond node degree, and neighbor information improves GAT and the neighbor \mlp{} on most systems with N2V, W2V, and \ft{}. In contrast, directed, typed HGT propagation lowers macro-F1 on most systems with all three vectors; \uhgt{} largely removes this loss, although direction and edge typing change together. GAT gives the highest scores in most comparisons, with \ft{} as the strongest input overall. These patterns hold under both schedules: self-training usually lowers macro-F1, but does not account for the model-dependent neighbor effect.
+Dependency information improves mapping depending on how the predictor uses it. Neighbors improve GAT and the neighbor \mlp{} on most systems across all three representations, but HGT propagation usually lowers macro-F1. Using HGT on the untyped, undirected graph largely removes this loss, although direction and edge typing change together. GAT generally achieves the highest scores, and \ft{} is the strongest input overall. These patterns hold under both training schedules, so self-training does not explain the model-dependent neighbor effect.
 \end{GrayBox}

@@ -8,7 +8,7 @@ We evaluate the HGT-based model on ten open-source systems with published ground
 
 Table~\ref{tab:datasets} summarizes the system and graph properties. File-level dependency homophily $\mathcal{H}$ is the proportion of unique directed file pairs connected by a static dependency whose source and target files fall within the same GT module, from 0 (every dependency crosses a module boundary) to 1 (every dependency stays within a module). The mean number of outgoing typed dependency edges per file, $\langle k \rangle$, differs from homophily in counting different dependency types between the same file pair separately.
 
-The Java systems come from the benchmark of Olsson et al.~\cite{olsson2022automatically}. JabRef and TeamMates (T.Mates) were studied at the SAEroCon workshop in 2016 and 2017, where system experts provided the architectures and mappings\footnote{\label{fnsaerocon}\href{https://github.com/sebastianherold/SAEroConRepo}{https://github.com/sebastianherold/SAEroConRepo}}. ArgoUML (A.UML) and Lucene were studied by Brunet et al.~\cite{Brunet_gt} and Lenhard et al.~\cite{lenhard2019exploring}, was studied by Lenhard et al.~\cite{lenhard2019exploring}, and the Commons Imaging (C.Img) mapping was contributed as a test case for s4rdm3x tool~\cite{olsson2021s4rdm3x}. \footnote{\label{fns4rdm3x} Java labels are available at: \href{https://github.com/h0bb3/s4rdm3x}{https://github.com/h0bb3/s4rdm3x}}
+The Java systems come from the benchmark of Olsson et al.~\cite{olsson2022automatically}. JabRef and TeamMates (T.Mates) were studied at the SAEroCon workshop in 2016 and 2017, where system experts provided the architectures and mappings\footnote{\label{fnsaerocon}\href{https://github.com/sebastianherold/SAEroConRepo}{https://github.com/sebastianherold/SAEroConRepo}}. Lucene was studied by Lenhard et al.~\cite{lenhard2019exploring}, and the Commons Imaging (C.Img) mapping was contributed as a test case for s4rdm3x~\cite{olsson2021s4rdm3x} \footnote{\label{fns4rdm3x} Java labels are available at: \href{https://github.com/h0bb3/s4rdm3x}{https://github.com/h0bb3/s4rdm3x}}.
 
 For Bash, we use the mapping curated by Garcia et al.~\cite{garcia2013}, who recovered an initial decomposition from documentation and source code and refined it with system experts through a certification process. The same work provides the Chromium mapping, developed with developers over approximately two years~\cite{deps_impact}.
 
@@ -16,16 +16,16 @@ The HDF and HDC mappings were developed with industry partners and are part of t
 
 \begin{table}[t]
 \centering\small
-\caption{Subject systems and their file-level dependency graph properties. \(M\): number of modules in the GT architecture; \(|E|\): number of dependency edges, counted separately for each dependency type; \(\mathcal{H}\): dependency homophily; \(\langle k \rangle\): average node degree, \(|E|/|\text{Files}|\).\label{tab:datasets}}
+\caption{Subject systems and their file-level dependency graph properties. \(M\): number of modules in the GT architecture; \(|E|\): number of dependency edges, counted separately for each dependency type; \(H\): dependency homophily; \(\langle k \rangle\): average node degree, \(|E|/|\text{Files}|\).\label{tab:datasets}}
 \renewcommand{\arraystretch}{1.1}
 \begin{adjustbox}{max width=\columnwidth}
-\begin{tabular}{c l l r r r r c r}
+\begin{tabular}{c l l r r r r c c}
 \toprule
-& \textbf{System} & \textbf{Version} & \textbf{LoC} & $\boldsymbol{M}$ & \textbf{Files} & $\boldsymbol{|E|}$ & $\boldsymbol{\mathcal{H}}$ & $\boldsymbol{\langle k \rangle}$ \\
+& \textbf{System} & \textbf{Version} & \textbf{LoC} & $\boldsymbol{M}$ & \textbf{Files} & $\boldsymbol{|E|}$ & $\boldsymbol{H}$ & $\boldsymbol{\langle k \rangle}$ \\
 \midrule
  
-\multirow{5}{*}{\rotatebox[origin=c]{90}{Java}}
-& A.UML   & r13713  & 62k & 14 & 766 & 9\,491 & 0.55 & 12.39\\
+\multirow{6}{*}{\rotatebox[origin=c]{90}{Java}}
+& A.UML   & v0.24 & n/a & 14 & 766 & 9\,491 & 0.55 & 12.39 \\
 & C.Img   & v1.0a2 & 18k & 21 & 329 & 4\,561 & 0.61 & 13.86 \\
 & JabRef  & v3.7 & 59k & 6 & 1\,013 & 16\,394 & 0.56 & 16.18 \\
 & Lucene  & r1075001 & 36k & 7 & 1\,054 & 18\,595 & 0.68 & 17.64 \\
@@ -92,12 +92,11 @@ Models & \multicolumn{2}{l}{HGT; \uhgt; GAT; \mlp} \\
 \end{adjustbox}
 \end{table}
 
-We compare four models that differ in how they use neighborhood information: HGT, untyped HGT (\uhgt), GAT, and a neighbor MLP (\mlp). HGT, as in the F configuration (Figure~\ref{fig:graph_variants_overview}), runs on the directed file graph and models dependency types separately. \uhgt removes both: it runs on the undirected file graph with all dependencies merged into a single edge type, so it tests whether types and direction matter. GAT runs on the same undirected graph and tests whether the aggregation matters when the graph is fixed. The \mlp uses no message passing: it receives the file's own vector and the mean of its neighbors' vectors, so it tests whether neighbor information helps without a graph model. For the graph models, \emph{off} removes the connections to other files; for the \mlp, it replaces the neighbor mean with zeros. All models use the architectures and optimizer settings of Section~\ref{sec:exp_setup}, with the training schedules of Table~\ref{tab:rq3_design}.
+We compare four models that differ in how they use neighborhood information: HGT, untyped, undirected HGT (\uhgt), GAT, and a neighbor MLP (\mlp). HGT, as in the F configuration (Figure~\ref{fig:graph_variants_overview}), runs on the directed file graph and models dependency types separately. \uhgt removes both: it runs on the undirected file graph with all dependencies merged into a single edge type, so it tests whether types and direction matter. GAT runs on the same undirected graph and tests whether the aggregation matters when the graph is fixed. The \mlp uses no message passing: it receives the file's own vector and the mean of its neighbors' vectors, so it tests whether neighbor information helps without a graph model. For the graph models, \emph{off} removes the connections to other files; for the \mlp, it replaces the neighbor mean with zeros. All models use the architectures and optimizer settings of Section~\ref{sec:exp_setup}, with the training schedules of Table~\ref{tab:rq3_design}.
 
 To separate the effect of neighbors from that of pseudo-labeling, we run every comparison under two schedules of 190 epochs: supervised-only training on the initial labels, and self-training with 100 warm-up epochs followed by three rounds of 30 epochs that add pseudo-labels with confidence above 0.95.
 
-N2V vectors already encode the dependency graph, so we first test whether they carry more than each file's number of connections. On Lucene, JabRef, and Bash, we compare real N2V vectors with vectors learned from a degree-preserving rewired graph and with real vectors shuffled among files, using HGT with self-training. We then compare the four models on all nine systems with three N2V embeddings per system, trained with different random seeds, and ten splits. To test whether the effect depends on the vectors encoding dependencies, we repeat the comparisons with W2V and \zs{}, which are not built from the dependency graph, and with \ft{}, which is fine-tuned on it, using one embedding per system. The study contains 8,640 experiments.
-
+N2V vectors already encode the dependency graph, so we first test whether they carry more than each file's number of connections. On Lucene, JabRef, and Bash, we compare real N2V vectors with vectors learned from a degree-preserving rewired graph and with real vectors shuffled among files, using HGT with self-training. We then compare the four models on all ten systems with three N2V embeddings per system, trained with different random seeds, and ten splits. To test whether the effect depends on the vectors encoding dependencies, we repeat the comparisons with W2V and \zs{}, which are not built from the dependency graph, and with \ft{}, which is fine-tuned on it, using one embedding per system. The study contains 9,600 experiments.
 % _________ Evaluation  _________________
 \subsection{Performance Evaluation}
 The benchmark systems exhibit imbalanced module distributions, with some modules containing many files while others contain only a few. Accuracy can therefore overstate performance by giving disproportionate weight to the largest modules. Therefore, we evaluate mapping performance using the F1 score, which balances precision and recall. Precision is the proportion of predicted module assignments that are correct, and recall is the proportion of true assignments that are recovered, and F1 is their harmonic mean, appropriate when module sizes are imbalanced.
