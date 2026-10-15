@@ -1,7 +1,7 @@
 \begin{table}[t]
 \centering
 \small
-\caption{Summary of pairwise differences in F1 points across ten systems. $\Delta$ is the median over systems of the difference between the two configuration medians (first method minus second); $+$ve counts systems favoring the first method; $\uparrow/\downarrow$ gives the number of significant positive/negative differences (paired Wilcoxon, Holm).\label{tab:rq1_stats}}
+\caption{Summary of pairwise differences in F1 points across ten systems. $\Delta$ is the median difference (first method minus second); $+$ve counts systems favoring the first method; $\uparrow/\downarrow$ gives the number of significant positive/negative differences.\label{tab:rq1_stats}}
 \begin{adjustbox}{max width=\linewidth}
 \begin{tabular}{lrrrrrr}
 \toprule
@@ -9,12 +9,117 @@
 \cmidrule(lr){2-4}\cmidrule(lr){5-7}
 Comparison & $\Delta$ & $+$ve & $\uparrow/\downarrow$ & $\Delta$ & $+$ve & $\uparrow/\downarrow$ \\
 \midrule
-\zs{}$-$W2V & +4.8 & 6 & 6/4 & +8.0 & 7 & 6/3 \\
-\ft{}$-$\zs{} & +9.1 & 9 & 9/0 & +9.5 & 10 & 10/0 \\
-\ft{}$-$W2V & +18.0 & 9 & 9/0 & +19.1 & 10 & 9/0 \\
-\ft{}$-$N2V & \best{$-$5.2} & 4 & 4/6 & \best{$-$2.9} & 4 & 3/6 \\
-N2V$-$W2V & +20.7 & 9 & 9/1 & +16.1 & 9 & 9/1 \\
+\zs{}$-$W2V   & \best{$-$1.4} & 5 & 4/5 & $+$4.1  & 5  & 5/3  \\
+\ft{}$-$\zs{} & $+$9.9  & 10 & 9/0 & $+$9.8  & 10 & 10/0 \\
+\ft{}$-$W2V   & $+$13.5 & 8  & 8/1 & $+$20.3 & 9  & 9/0  \\
+\ft{}$-$N2V   & \best{$-$8.0} & 3 & 2/6 & \best{$-$4.6} & 3 & 3/6 \\
+N2V$-$W2V     & $+$14.7 & 9  & 9/1 & $+$16.5 & 9  & 9/1  \\
 \bottomrule
 \end{tabular}
 \end{adjustbox}
 \end{table}
+
+
+% \begin{table}[t]
+% \centering
+% \small
+% \renewcommand{\arraystretch}{1.05}
+% % \setlength{\tabcolsep}{5pt}
+% \caption{Median differences in F1 points, reported as macro-F1 / micro-F1.
+% Cliff's $\delta$ magnitude appears in parentheses (N/S/M/L).
+% $\dagger$ denotes a difference not statistically significant after Holm
+% correction. Positive values favor the first method; highlighted values
+% indicate that the second method is significantly better.
+% \label{tab:rq1_stats}}
+% \begin{adjustbox}{max width=\linewidth}
+% \large
+% \begin{tabular}{lcccc}
+% \toprule
+% System
+% & \ft{}$-$\zs{}
+% & \ft{}$-$W2V
+% & \ft{}$-$N2V
+% & N2V$-$W2V \\
+% \midrule
+% A.UML
+% & $+11.0$(L) / $+7.5$(L)
+% & $+1.1$(N)$^\dagger$ / $+4.0$(L)
+% & \best{$-18.1$(L)} / \best{$-9.7$(L)}
+% & $+19.2$(L) / $+13.7$(L) \\
+% C.Img
+% & $+11.8$(L) / $+12.6$(L)
+% & $+14.6$(L) / $+22.0$(L)
+% & \best{$-35.2$(L)} / \best{$-20.1$(L)}
+% & $+49.8$(L) / $+42.1$(L) \\
+% JabRef
+% & $+2.7$(M) / $+2.6$(L)
+% & \best{$-6.0$(L)} / $-0.5$(N)$^\dagger$
+% & $-0.8$(N)$^\dagger$ / $+3.9$(L)
+% & \best{$-5.2$(L)} / \best{$-4.5$(L)} \\
+% Lucene
+% & $+7.7$(L) / $+9.3$(L)
+% & $-1.8$(N)$^\dagger$ / $+2.8$(L)
+% & \best{$-8.6$(L)} / \best{$-4.5$(L)}
+% & $+6.8$(L) / $+7.3$(L) \\
+% SH-3D
+% & $+2.4$(S) / $+2.7$(M)
+% & $+19.0$(L) / $+23.7$(L)
+% & $+9.0$(L) / $+10.3$(L)
+% & $+10.1$(L) / $+13.4$(L) \\
+% T.Mates
+% & $+17.4$(L) / $+11.8$(L)
+% & $+18.3$(L) / $+20.9$(L)
+% & $+13.8$(L) / $+11.0$(L)
+% & $+4.5$(M) / $+9.9$(L) \\
+% Bash
+% & $+7.9$(L) / $+9.5$(L)
+% & $+19.0$(L) / $+21.4$(L)
+% & \best{$-14.8$(L)} / \best{$-11.1$(L)}
+% & $+33.8$(L) / $+32.5$(L) \\
+% HDF
+% & $+6.1$(L) / $+5.8$(L)
+% & $+38.0$(L) / $+26.8$(L)
+% & \best{$-7.4$(L)} / \best{$-8.8$(L)}
+% & $+45.5$(L) / $+35.6$(L) \\
+% Chrome
+% & $+12.8$(L) / $+14.7$(L)
+% & $+9.2$(L) / $+12.9$(L)
+% & \best{$-15.0$(L)} / \best{$-6.3$(L)}
+% & $+24.2$(L) / $+19.2$(L) \\
+% HDC
+% & $+16.5$(L) / $+22.4$(L)
+% & $+12.4$(L) / $+19.7$(L)
+% & $+2.3$(S)$^\dagger$ / $-1.0$(N)$^\dagger$
+% & $+10.1$(L) / $+20.7$(L) \\
+% \bottomrule
+% \end{tabular}
+% \end{adjustbox}
+% \end{table}
+
+% \begin{table*}[t]
+% \centering
+% \renewcommand{\arraystretch}{1}
+% \caption{Median differences in F1 points for macro-F1 (MA) and micro-F1 (MI), with Cliff's $\delta$ magnitude in parentheses (N/S/M/L). $\dagger$ marks differences that are not statistically significant after Holm correction, and a positive value favors the first-named method. Cells in which the second method is significantly better are highlighted.\label{tab:rq1_stats}}
+% \begin{adjustbox}{max width=\textwidth}
+% \small
+% \setlength{\tabcolsep}{10pt}
+% \begin{tabular}{l | rr | rr | rr | rr}
+% \toprule
+% & \multicolumn{2}{c|}{\ft{}$-$\zs{}} & \multicolumn{2}{c|}{\ft{}$-$W2V} & \multicolumn{2}{c|}{\ft{}$-$N2V} & \multicolumn{2}{c}{N2V$-$W2V} \\
+% \cmidrule(lr){2-3}\cmidrule(lr){4-5}\cmidrule(lr){6-7}\cmidrule(lr){8-9}
+% System & MA $\Delta$ & MI $\Delta$ & MA $\Delta$ & MI $\Delta$ & MA $\Delta$ & MI $\Delta$ & MA $\Delta$ & MI $\Delta$ \\
+% \midrule
+% A.UML   & $+13.2$(L) & $+10.1$(L) & $+5.9$(L) & $+9.1$(L) & \best{$-13.3$(L)} & \best{$-4.6$(L)} & $+19.2$(L) & $+13.7$(L) \\
+% C.Img   & $+11.8$(L) & $+12.6$(L) & $+14.6$(L) & $+22.0$(L) & \best{$-35.2$(L)} & \best{$-20.1$(L)} & $+49.8$(L) & $+42.1$(L) \\
+% JabRef  & $+2.7$(M) & $+2.6$(L) & \best{$-6.0$(L)} & $-0.5$(N)$^\dagger$ & $-0.8$(N)$^\dagger$ & $+3.9$(L) & \best{$-5.2$(L)} & \best{$-4.5$(L)} \\
+% Lucene  & $+7.7$(L) & $+9.3$(L) & $-1.8$(N)$^\dagger$ & $+2.8$(L) & \best{$-8.6$(L)} & \best{$-4.5$(L)} & $+6.8$(L) & $+7.3$(L) \\
+% SH-3D   & $+2.4$(S)$^\dagger$ & $+2.7$(M) & $+19.0$(L) & $+23.7$(L) & $+9.0$(L) & $+10.3$(L) & $+10.1$(L) & $+13.4$(L) \\
+% T.Mates & $+17.4$(L) & $+11.8$(L) & $+18.3$(L) & $+20.9$(L) & $+13.8$(L) & $+11.0$(L) & $+4.5$(M) & $+9.9$(L) \\
+% Bash    & $+7.9$(L) & $+9.5$(L) & $+19.0$(L) & $+21.4$(L) & \best{$-14.8$(L)} & \best{$-11.1$(L)} & $+33.8$(L) & $+32.5$(L) \\
+% HDF     & $+6.1$(L) & $+5.8$(L) & $+38.0$(L) & $+26.8$(L) & \best{$-7.4$(L)} & \best{$-8.8$(L)} & $+45.5$(L) & $+35.6$(L) \\
+% Chrome  & $+12.8$(L) & $+14.7$(L) & $+9.2$(L) & $+12.9$(L) & \best{$-15.0$(L)} & \best{$-6.3$(L)} & $+24.2$(L) & $+19.2$(L) \\
+% HDC     & $+16.5$(L) & $+22.4$(L) & $+12.4$(L) & $+19.7$(L) & $+2.3$(S)$^\dagger$ & $-1.0$(N)$^\dagger$ & $+10.1$(L) & $+20.7$(L) \\
+% \bottomrule
+% \end{tabular}
+% \end{adjustbox}
+% \end{table*}
