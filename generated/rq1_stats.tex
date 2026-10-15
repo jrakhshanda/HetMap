@@ -1,7 +1,7 @@
 \begin{table}[t]
 \centering
 \small
-\caption{Summary of pairwise differences in F1 points across ten systems. $\Delta$ is the median difference (first method minus second); $+$ve counts systems favoring the first method; $\uparrow/\downarrow$ gives the number of significant positive/negative differences (Wilcoxon signed-rank, Holm-adjusted, $\alpha=0.05$).\label{tab:rq1_stats}}
+\caption{Summary of pairwise differences in F1 points across ten systems. $\Delta$ is the median difference (first method minus second); $+$ve counts systems favoring the first method; $\uparrow/\downarrow$ gives the number of significant positive/negative differences.\label{tab:rq1_stats}}
 \begin{adjustbox}{max width=\linewidth}
 \begin{tabular}{lrrrrrr}
 \toprule
@@ -9,6 +9,7 @@
 \cmidrule(lr){2-4}\cmidrule(lr){5-7}
 Comparison & $\Delta$ & $+$ve & $\uparrow/\downarrow$ & $\Delta$ & $+$ve & $\uparrow/\downarrow$ \\
 \midrule
+\zs{}$-$W2V   & \best{$-$1.4} & 5 & 4/5 & $+$4.1  & 5  & 5/3  \\
 \ft{}$-$\zs{} & $+$9.9  & 10 & 9/0 & $+$9.8  & 10 & 10/0 \\
 \ft{}$-$W2V   & $+$13.5 & 8  & 8/1 & $+$20.3 & 9  & 9/0  \\
 \ft{}$-$N2V   & \best{$-$8.0} & 3 & 2/6 & \best{$-$4.6} & 3 & 3/6 \\

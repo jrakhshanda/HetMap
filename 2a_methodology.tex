@@ -188,19 +188,19 @@ h_i^{(k+1)} = \text{ReLU}\big(W^{(k)} h_i^{(k)} + b^{(k)}\big),
 \end{equation}
 with $h_i^{(0)} = x_i$ the file feature vector and $W^{(k)}, b^{(k)}$ the learnable parameters of layer $k$, and ReLU is the rectified linear unit~\cite{relu}. After the final hidden layer, a linear layer maps the resulting representation to module logits. The input $x_i$ contains the single representation being evaluated.
 
-\subsubsection{Graph Attention Network (GAT)\label{sec:gat_model}}
-GAT~\cite{gat} is an attention-based graph neural network. It updates a node's representation through a weighted aggregation of transformed neighbor features, averaged across $K$ attention heads:
-\begin{equation}
-h_i^{(1)} = \mathrm{ELU}\!\left(\frac{1}{K}\sum_{k=1}^{K}\sum_{j\in\mathcal{N}(i)} \alpha_{ij}^{(k)} W^{(k)} h_j^{(0)}\right),
-\end{equation}
-where $\alpha_{ij}^{(k)}$ is the attention weight of neighbor $j$ for node $i$ in head $k$, $W^{(k)}$ is a head-specific learnable matrix, and $\mathrm{ELU}(\cdot)$ is the exponential linear unit~\cite{elu}.
-
 \subsubsection{Heterogeneous Graph Transformer (HGT)\label{sec:hgt_model}}
 Node types have different feature spaces depending on the graph variant and the initialization strategy, so the HGT-based model first maps each node type into a shared hidden space using a type-specific linear transformation followed by ReLU. One HGT layer~\cite{hgt} then updates node representations through multi-head attention over their neighbors. Attention uses target-type-specific query transformations, source-type-specific key transformations, edge-type-specific matrices, and a learned prior for each meta-relation. Messages use source-type-specific transformations and edge-type-specific matrices. These parameters allow a \emph{contains} edge from a folder and a \texttt{Call} edge from a dependent file to receive different attention weights. In our implementation, the aggregated messages are combined with the node's projected input through a residual connection followed by layer normalization:
 \begin{equation}
 h_t^{(1)} = \mathrm{LayerNorm}\left(\sum_{s \in \mathcal{N}(t)} \alpha(s,e,t) \cdot M(s,e,t) + h_t^{(0)}\right),
 \end{equation}
-where $\alpha(s,e,t)$ and $M(s,e,t)$ denote the attention weight and message from source node $s$ to target node $t$ over edge $e$, with attention-head indices omitted for brevity, and $h_t^{(0)}$ is the projected input. The residual connection retains a direct path from the initial node features~\cite{residual_connection}. Folder and member nodes, when present, contribute to file representations through message passing. 
+where $\alpha(s,e,t)$ and $M(s,e,t)$ denote the attention weight and message from source node $s$ to target node $t$ over edge $e$, with attention-head indices omitted for brevity, and $h_t^{(0)}$ is the projected input. The residual connection retains a direct path from the initial node features~\cite{residual_connection}. Folder and member nodes, when present, contribute to file representations through message passing.
+
+\subsubsection{Graph Attention Network (GAT)\label{sec:gat_model}}
+GAT~\cite{gat} aggregates neighbor representations with a single attention mechanism shared by all neighbors, without the node-type-, edge-type-, or direction-specific parameters of HGT. Like HGT, it first projects the input vector and combines the aggregated messages with the projected input through a residual connection followed by layer normalization:
+\begin{equation}
+h_i^{(1)} = \mathrm{LayerNorm}\left(\Big\Vert_{k=1}^{K} \sum_{j \in \mathcal{N}(i)} \alpha_{ij}^{(k)} W^{(k)} h_j^{(0)} + h_i^{(0)}\right),
+\end{equation}
+where $\Vert$ denotes concatenation over the $K$ attention heads, $\alpha_{ij}^{(k)}$ is the attention weight of neighbor $j$ for node $i$ in head $k$, $W^{(k)}$ is a head-specific learnable matrix, and $h_i^{(0)}$ is the projected input.
 
 % ________ Algorithm _____________
 \subsection{Iterative Learning Framework\label{sec:iterative_learning}}
