@@ -1,0 +1,24 @@
+\begin{table*}[t]
+\centering
+\caption{Median F1 over ten systems for each predictor on the directed and the undirected file graph, by input vector. In parentheses: number of systems on which the predictor has the highest median score. Highlighted: highest median in each row and graph condition. HGT, GAT and \mlp{} have different parameter counts.\label{tab:rq3_encoders}}
+\begin{adjustbox}{max width=\textwidth}
+\renewcommand{\arraystretch}{1.1}
+\begin{tabular}{llrrrrrr}
+\toprule
+& & \multicolumn{3}{c}{Directed} & \multicolumn{3}{c}{Undirected} \\
+\cmidrule(lr){3-5}\cmidrule(lr){6-8}
+Metric & Vector & HGT & GAT & \mlp{} & HGT & GAT & \mlp{} \\
+\midrule
+\multirow{4}{*}{Macro F1} & N2V & \best{48.1 (6)} & 46.4 (0) & 47.8 (4) & 48.1 (1) & \best{49.4 (6)} & 45.9 (3) \\
+ & W2V & 37.6 (0) & \best{41.1 (10)} & 28.4 (0) & 38.9 (0) & \best{41.0 (10)} & 30.4 (0) \\
+ & \zs{} & 43.0 (1) & \best{46.1 (9)} & 43.0 (0) & 43.2 (0) & \best{49.0 (10)} & 42.9 (0) \\
+ & \ft{} & 49.2 (4) & \best{49.4 (5)} & 48.5 (1) & 50.6 (2) & \best{53.0 (7)} & 50.4 (1) \\
+\midrule
+\multirow{4}{*}{Micro F1} & N2V & \best{74.3 (9)} & 71.9 (0) & 71.1 (1) & \best{74.0 (5)} & 73.7 (4) & 72.2 (1) \\
+ & W2V & 56.3 (1) & \best{58.2 (8)} & 48.4 (1) & 59.6 (1) & \best{63.2 (9)} & 54.2 (0) \\
+ & \zs{} & 62.7 (0) & \best{69.5 (10)} & 64.4 (0) & 62.3 (0) & \best{69.8 (10)} & 64.8 (0) \\
+ & \ft{} & 73.0 (4) & \best{73.9 (6)} & 69.9 (0) & 72.4 (0) & \best{76.5 (10)} & 72.6 (0) \\
+\bottomrule
+\end{tabular}
+\end{adjustbox}
+\end{table*}

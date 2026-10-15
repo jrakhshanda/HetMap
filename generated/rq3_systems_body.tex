@@ -1,6 +1,6 @@
 \begin{table*}[t]
 \centering
-\caption{Change in F1 (on $-$ off) when neighbor information is switched on, by input vector. Each cell gives the median difference across ten systems in F1 points, followed in parentheses by the number of systems with a positive difference and the numbers of significant positive and negative differences. Sup. denotes supervised-only training and self. denotes self-training. Shading marks the median difference: blue for gains, purple for losses, and darker for larger changes.\label{tab:rq3_reps}}
+\caption{Change in F1 when neighbor information is switched on, by input vector and graph condition. Each cell gives the median over ten systems of the paired within-split change in F1 points, followed in parentheses by the number of systems with a positive median change and the numbers of significant positive and negative changes (paired Wilcoxon, Holm). Dir.: dependencies in their original direction; undir.: bidirectional; off: no neighbor information. Shading marks the median change: blue for gains, purple for losses, and darker for larger changes.\label{tab:rq3_reps}}
 
 \begin{adjustbox}{max width=\textwidth}
 \renewcommand{\arraystretch}{1.1}
@@ -8,108 +8,20 @@
 \toprule
 & & \multicolumn{2}{c}{N2V} & \multicolumn{2}{c}{W2V} & \multicolumn{2}{c}{\zs{}} & \multicolumn{2}{c}{\ft{}} \\
 \cmidrule(lr){3-4}\cmidrule(lr){5-6}\cmidrule(lr){7-8}\cmidrule(lr){9-10}
-Model & Schedule & Macro F1 & Micro F1 & Macro F1 & Micro F1 & Macro F1 & Micro F1 & Macro F1 & Micro F1 \\
+Model & Contrast & Macro F1 & Micro F1 & Macro F1 & Micro F1 & Macro F1 & Micro F1 & Macro F1 & Micro F1 \\
 \midrule
-\multirow{2}{*}{HGT} & sup. & \rc{70}$-$5.8 (1; 0/6) & \rc{45}$-$2.5 (2; 2/5) & \rc{70}$-$4.1 (2; 2/8) & \rc{45}$-$2.3 (2; 2/6) & \rc{45}$-$1.2 (4; 1/3) & \rc{25}$-$0.5 (4; 2/1) & \rc{70}$-$3.6 (4; 0/4) & \rc{45}$-$1.3 (3; 1/3) \\
- & self. & \rc{70}$-$5.4 (0; 0/6) & \rc{70}$-$3.1 (3; 1/5) & \rc{70}$-$4.4 (2; 2/8) & \rc{45}$-$2.9 (3; 2/6) & \rc{45}$-$1.7 (2; 0/1) & \rc{25}$-$0.1 (5; 1/2) & \rc{45}$-$2.5 (2; 0/4) & \rc{45}$-$1.3 (3; 1/2) \\
+\multirow{3}{*}{HGT} & dir.$-$off & \rc{25}$-$0.6 (4; 4/6) & \gc{45}+1.6 (6; 6/4) & \gc{25}+0.2 (5; 4/5) & \gc{45}+1.8 (7; 7/3) & \gc{45}+1.6 (9; 7/0) & \gc{45}+2.7 (10; 10/0) & \gc{25}+0.7 (7; 6/3) & \gc{45}+1.8 (8; 8/0) \\
+ & undir.$-$off & \gc{25}+0.5 (8; 5/2) & \gc{25}+0.8 (9; 8/0) & \gc{45}+2.9 (7; 7/3) & \gc{70}+4.5 (8; 8/2) & \gc{45}+1.8 (10; 10/0) & \gc{45}+2.5 (10; 10/0) & \gc{25}+0.9 (10; 8/0) & \gc{45}+1.6 (10; 10/0) \\
+ & undir.$-$dir. & \gc{25}+0.3 (6; 5/4) & \gc{25}+0.1 (5; 3/4) & \gc{25}+0.7 (7; 4/3) & \gc{45}+1.5 (6; 5/4) & \rc{25}0.0 (5; 4/3) & \gc{25}+0.1 (5; 5/4) & \gc{25}+0.6 (6; 5/3) & \gc{25}+0.2 (5; 4/4) \\
 \addlinespace[3pt]
-\multirow{2}{*}{\uhgt{}} & sup. & \gc{25}+0.4 (6; 2/1) & \gc{25}+0.9 (8; 1/0) & \gc{45}+2.8 (7; 3/1) & \gc{70}+3.7 (8; 6/1) & \gc{45}+2.0 (10; 9/0) & \gc{45}+2.6 (10; 10/0) & \gc{25}+0.9 (10; 2/0) & \gc{45}+1.4 (10; 7/0) \\
- & self. & \gc{25}+0.3 (6; 0/1) & \gc{25}+1.0 (9; 3/0) & \gc{45}+2.0 (7; 2/0) & \gc{70}+4.0 (8; 6/0) & \gc{45}+2.6 (9; 6/0) & \gc{45}+3.0 (10; 9/0) & \gc{45}+2.0 (10; 1/0) & \gc{45}+1.9 (10; 6/0) \\
+\multirow{3}{*}{GAT} & dir.$-$off & \rc{45}$-$2.8 (4; 3/6) & \rc{25}$-$0.8 (3; 2/5) & \gc{45}+1.5 (8; 6/2) & \gc{45}+2.4 (7; 7/1) & \gc{70}+3.8 (10; 9/0) & \gc{100}+6.2 (10; 10/0) & \gc{25}+0.7 (6; 4/2) & \gc{45}+2.2 (8; 7/1) \\
+ & undir.$-$off & \gc{45}+1.4 (9; 8/0) & \gc{45}+1.4 (10; 10/0) & \gc{70}+5.6 (8; 7/0) & \gc{100}+6.7 (8; 8/0) & \gc{100}+8.2 (10; 10/0) & \gc{100}+9.5 (10; 10/0) & \gc{70}+3.8 (10; 8/0) & \gc{70}+4.1 (10; 10/0) \\
+ & undir.$-$dir. & \gc{70}+3.8 (7; 6/2) & \gc{45}+2.2 (8; 8/1) & \gc{45}+1.9 (7; 5/3) & \gc{45}+1.6 (7; 5/3) & \gc{70}+3.3 (6; 6/4) & \gc{45}+2.2 (6; 6/2) & \gc{45}+3.0 (6; 6/4) & \gc{45}+1.3 (7; 6/1) \\
 \addlinespace[3pt]
-\multirow{2}{*}{GAT} & sup. & \gc{45}+1.1 (9; 3/0) & \gc{45}+1.6 (10; 10/0) & \gc{100}+6.0 (9; 4/0) & \gc{100}+6.5 (10; 7/0) & \gc{100}+7.8 (10; 8/0) & \gc{100}+9.2 (10; 10/0) & \gc{70}+4.1 (8; 4/0) & \gc{70}+4.2 (10; 8/0) \\
- & self. & \gc{45}+2.8 (10; 3/0) & \gc{45}+2.7 (9; 8/0) & \gc{70}+5.0 (8; 4/0) & \gc{100}+6.2 (8; 7/0) & \gc{100}+6.9 (9; 9/0) & \gc{100}+8.1 (10; 9/0) & \gc{70}+3.3 (9; 4/0) & \gc{70}+4.4 (9; 5/0) \\
-\addlinespace[3pt]
-\multirow{2}{*}{\mlp{}} & sup. & \gc{45}+1.0 (9; 4/0) & \gc{45}+1.3 (9; 6/0) & \gc{70}+4.8 (9; 7/0) & \gc{70}+4.5 (9; 6/0) & \gc{100}+6.8 (10; 9/0) & \gc{100}+6.1 (10; 10/0) & \gc{70}+4.7 (9; 5/0) & \gc{70}+4.5 (10; 6/0) \\
- & self. & \gc{45}+2.4 (9; 5/0) & \gc{45}+2.2 (9; 7/0) & \gc{70}+4.0 (10; 7/0) & \gc{70}+4.6 (10; 6/0) & \gc{100}+7.7 (9; 7/0) & \gc{100}+7.3 (10; 10/0) & \gc{100}+6.5 (10; 6/0) & \gc{70}+4.9 (10; 9/0) \\
+\multirow{3}{*}{\mlp{}} & dir.$-$off & \rc{25}$-$0.6 (4; 4/5) & \gc{25}+0.8 (6; 5/4) & \gc{70}+3.4 (9; 9/1) & \gc{45}+2.7 (9; 8/1) & \gc{70}+4.8 (8; 7/1) & \gc{70}+5.1 (9; 9/0) & \gc{45}+2.8 (7; 6/2) & \gc{45}+2.9 (7; 7/2) \\
+ & undir.$-$off & \gc{45}+1.2 (10; 8/0) & \gc{45}+1.2 (9; 8/0) & \gc{70}+5.1 (10; 10/0) & \gc{70}+4.9 (10; 10/0) & \gc{100}+7.7 (10; 10/0) & \gc{100}+7.3 (10; 10/0) & \gc{70}+5.8 (10; 10/0) & \gc{70}+4.6 (10; 10/0) \\
+ & undir.$-$dir. & \gc{45}+1.6 (6; 6/4) & \gc{25}+0.4 (6; 5/3) & \gc{45}+1.3 (6; 6/3) & \gc{45}+1.9 (6; 6/2) & \gc{70}+3.5 (6; 6/4) & \gc{45}+2.5 (6; 6/4) & \gc{70}+3.1 (6; 6/3) & \gc{45}+1.3 (7; 7/3) \\
 \bottomrule
 \end{tabular}
 \end{adjustbox}
 \end{table*}
-
-
-
- % \begin{table*}[thb]
-% \centering
-% \caption{Change in macro- and micro-F1 when neighbor information is switched on, by input vector. $\Delta$ is the median difference across nine systems; $+$ve counts positive differences; $\uparrow/\downarrow$ gives the numbers of significant positive and negative differences, respectively (Wilcoxon signed-rank test, Holm-adjusted, $\alpha=0.05$). Shading marks $\Delta$: blue for gains, purple for losses, darker for larger changes.\label{tab:rq3_reps}}
-% \begin{adjustbox}{max width=\textwidth}
-% \large
-% \begin{tabular}{llrrrrrrrrrrrrrrrrrrrrrrrr}
-% \toprule
-% & & \multicolumn{6}{c}{N2V} & \multicolumn{6}{c}{W2V} & \multicolumn{6}{c}{\zs{}} & \multicolumn{6}{c}{\ft{}} \\
-% \cmidrule(lr){3-8}\cmidrule(lr){9-14}\cmidrule(lr){15-20}\cmidrule(lr){21-26}
-% & & \multicolumn{3}{c}{Macro F1} & \multicolumn{3}{c}{Micro F1}
-% & \multicolumn{3}{c}{Macro F1} & \multicolumn{3}{c}{Micro F1}
-% & \multicolumn{3}{c}{Macro F1} & \multicolumn{3}{c}{Micro F1}
-% & \multicolumn{3}{c}{Macro F1} & \multicolumn{3}{c}{Micro F1} \\
-% \cmidrule(lr){3-5}\cmidrule(lr){6-8}
-% \cmidrule(lr){9-11}\cmidrule(lr){12-14}
-% \cmidrule(lr){15-17}\cmidrule(lr){18-20}
-% \cmidrule(lr){21-23}\cmidrule(lr){24-26}
-% Model & Sch.
-% & $\Delta$ & $+$ve & $\uparrow/\downarrow$
-% & $\Delta$ & $+$ve & $\uparrow/\downarrow$
-% & $\Delta$ & $+$ve & $\uparrow/\downarrow$
-% & $\Delta$ & $+$ve & $\uparrow/\downarrow$
-% & $\Delta$ & $+$ve & $\uparrow/\downarrow$
-% & $\Delta$ & $+$ve & $\uparrow/\downarrow$
-% & $\Delta$ & $+$ve & $\uparrow/\downarrow$
-% & $\Delta$ & $+$ve & $\uparrow/\downarrow$ \\
-% \midrule
-
-% HGT & sup. & \rc{70}$-$4.6 & 1 & 0/5 & \rc{45}$-$2.0 & 2 & 2/4 & \rc{70}$-$3.9 & 2 & 2/7 & \rc{45}$-$1.0 & 2 & 2/5 & \rc{45}$-$1.2 & 4 & 1/2 & \rc{25}$-$0.2 & 4 & 2/1 & \rc{70}$-$3.9 & 4 & 0/3 & \rc{45}$-$1.7 & 3 & 1/3 \\
-%  & self. & \rc{70}$-$4.8 & 0 & 0/5 & \rc{45}$-$2.4 & 3 & 1/4 & \rc{70}$-$3.6 & 2 & 2/7 & \rc{45}$-$2.0 & 3 & 2/5 & \rc{45}$-$1.3 & 2 & 0/0 & \gc{25}+0.2 & 5 & 1/1 & \rc{45}$-$2.2 & 2 & 0/3 & \rc{45}$-$1.2 & 3 & 1/2 \\
-% \addlinespace[3pt]
-% \multirow{2}{*}{\shortstack[l]{HGT\\-UT}} & sup. & \gc{25}+0.6 & 5 & 2/1 & \gc{25}+0.9 & 7 & 2/0 & \gc{45}+2.6 & 6 & 4/1 & \gc{70}+4.0 & 7 & 7/1 & \gc{45}+1.6 & 9 & 8/0 & \gc{70}+3.1 & 9 & 9/0 & \gc{25}+0.9 & 9 & 2/0 & \gc{45}+1.4 & 9 & 6/0 \\
-%  & self. & \gc{25}+0.4 & 6 & 0/1 & \gc{45}+1.2 & 8 & 3/0 & \gc{45}+1.7 & 6 & 2/0 & \gc{70}+3.9 & 7 & 7/0 & \gc{45}+2.1 & 8 & 6/0 & \gc{70}+3.1 & 9 & 8/0 & \gc{45}+1.8 & 9 & 2/0 & \gc{45}+2.0 & 9 & 5/0 \\
-% \addlinespace[3pt]
-% GAT & sup. & \gc{45}+1.1 & 8 & 3/0 & \gc{45}+1.6 & 9 & 9/0 & \gc{70}+5.7 & 8 & 3/0 & \gc{100}+6.4 & 9 & 6/0 & \gc{100}+7.7 & 9 & 7/0 & \gc{100}+10.5 & 9 & 9/0 & \gc{70}+4.2 & 7 & 4/0 & \gc{70}+4.4 & 9 & 7/0 \\
-%  & self. & \gc{70}+3.2 & 9 & 3/0 & \gc{45}+2.9 & 8 & 7/0 & \gc{70}+3.7 & 7 & 3/0 & \gc{100}+6.9 & 7 & 6/0 & \gc{100}+8.0 & 8 & 8/0 & \gc{100}+8.9 & 9 & 9/0 & \gc{70}+4.2 & 8 & 4/0 & \gc{70}+4.2 & 8 & 4/0 \\
-% \addlinespace[3pt]
-% MLP & sup. & \gc{25}+0.7 & 8 & 4/0 & \gc{45}+1.4 & 8 & 5/0 & \gc{70}+4.4 & 8 & 6/0 & \gc{70}+4.4 & 8 & 5/0 & \gc{100}+6.9 & 9 & 8/0 & \gc{70}+5.2 & 9 & 9/0 & \gc{70}+4.0 & 8 & 4/0 & \gc{70}+4.5 & 9 & 5/0 \\
-%  & self. & \gc{45}+2.6 & 8 & 5/0 & \gc{45}+2.8 & 8 & 6/0 & \gc{70}+3.6 & 9 & 6/0 & \gc{70}+4.6 & 9 & 5/0 & \gc{100}+6.8 & 8 & 6/0 & \gc{100}+6.9 & 9 & 9/0 & \gc{100}+6.3 & 9 & 5/0 & \gc{70}+4.6 & 9 & 8/0 \\
-% \bottomrule
-% \end{tabular}
-% \end{adjustbox}
-% \end{table*}
-
-
-% % --- Table B
-% \begin{table*}[thb]
-% \centering
-% \caption{Change in macro- and micro-F1 when neighbor information is switched on, by input vector. $\Delta$ is the median difference across nine systems; $+$ve counts positive differences; $\uparrow/\downarrow$ gives the numbers of significant positive and negative differences, respectively (Wilcoxon signed-rank test, Holm-adjusted, $\alpha=0.05$). Shading marks $\Delta$: blue for gains, purple for losses, darker for larger changes.\label{tab:rq3_reps}}
-% \begin{adjustbox}{max width=\textwidth}
-% \large
-% \begin{tabular}{llrrrrrrrrrrrrrrrrrr}
-% \toprule
-% & & \multicolumn{6}{c}{N2V} & \multicolumn{6}{c}{W2V} & \multicolumn{6}{c}{\ft{}} \\
-% \cmidrule(lr){3-8}\cmidrule(lr){9-14}\cmidrule(lr){15-20}
-% & & \multicolumn{3}{c}{Macro F1} & \multicolumn{3}{c}{Micro F1}
-% & \multicolumn{3}{c}{Macro F1} & \multicolumn{3}{c}{Micro F1}
-% & \multicolumn{3}{c}{Macro F1} & \multicolumn{3}{c}{Micro F1} \\
-% \cmidrule(lr){3-5}\cmidrule(lr){6-8}
-% \cmidrule(lr){9-11}\cmidrule(lr){12-14}
-% \cmidrule(lr){15-17}\cmidrule(lr){18-20}
-% Model & Sch.
-% & $\Delta$ & $+$ve & $\uparrow/\downarrow$
-% & $\Delta$ & $+$ve & $\uparrow/\downarrow$
-% & $\Delta$ & $+$ve & $\uparrow/\downarrow$
-% & $\Delta$ & $+$ve & $\uparrow/\downarrow$
-% & $\Delta$ & $+$ve & $\uparrow/\downarrow$
-% & $\Delta$ & $+$ve & $\uparrow/\downarrow$ \\
-% \midrule
-
-% HGT & sup. & \rc{70}$-$4.6 & 1 & 0/5 & \rc{45}$-$2.0 & 2 & 2/4 & \rc{70}$-$3.9 & 2 & 2/7 & \rc{45}$-$1.0 & 2 & 2/5 & \rc{70}$-$3.9 & 4 & 0/3 & \rc{45}$-$1.7 & 3 & 1/3 \\
-%  & self. & \rc{70}$-$4.8 & 0 & 0/5 & \rc{45}$-$2.4 & 3 & 1/4 & \rc{70}$-$3.6 & 2 & 2/7 & \rc{45}$-$2.0 & 3 & 2/5 & \rc{45}$-$2.2 & 2 & 0/3 & \rc{45}$-$1.2 & 3 & 1/2 \\
-% \addlinespace[3pt]
-% \uhgt{} & sup. & \gc{25}+0.6 & 5 & 2/1 & \gc{25}+0.9 & 7 & 2/0 & \gc{45}+2.6 & 6 & 4/1 & \gc{70}+4.0 & 7 & 7/1 & \gc{25}+0.9 & 9 & 2/0 & \gc{45}+1.4 & 9 & 6/0 \\
-%  & self. & \gc{25}+0.4 & 6 & 0/1 & \gc{45}+1.2 & 8 & 3/0 & \gc{45}+1.7 & 6 & 2/0 & \gc{70}+3.9 & 7 & 7/0 & \gc{45}+1.8 & 9 & 2/0 & \gc{45}+2.0 & 9 & 5/0 \\
-% \addlinespace[3pt]
-% GAT & sup. & \gc{45}+1.1 & 8 & 3/0 & \gc{45}+1.6 & 9 & 9/0 & \gc{70}+5.7 & 8 & 3/0 & \gc{100}+6.4 & 9 & 6/0 & \gc{70}+4.2 & 7 & 4/0 & \gc{70}+4.4 & 9 & 7/0 \\
-%  & self. & \gc{70}+3.2 & 9 & 3/0 & \gc{45}+2.9 & 8 & 7/0 & \gc{70}+3.7 & 7 & 3/0 & \gc{100}+6.9 & 7 & 6/0 & \gc{70}+4.2 & 8 & 4/0 & \gc{70}+4.2 & 8 & 4/0 \\
-% \addlinespace[3pt]
-% MLP & sup. & \gc{25}+0.7 & 8 & 4/0 & \gc{45}+1.4 & 8 & 5/0 & \gc{70}+4.4 & 8 & 6/0 & \gc{70}+4.4 & 8 & 5/0 & \gc{70}+4.0 & 8 & 4/0 & \gc{70}+4.5 & 9 & 5/0 \\
-%  & self. & \gc{45}+2.6 & 8 & 5/0 & \gc{45}+2.8 & 8 & 6/0 & \gc{70}+3.6 & 9 & 6/0 & \gc{70}+4.6 & 9 & 5/0 & \gc{100}+6.3 & 9 & 5/0 & \gc{70}+4.6 & 9 & 8/0 \\
-% \bottomrule
-% \end{tabular}
-% \end{adjustbox}
-% \end{table*}
