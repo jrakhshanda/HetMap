@@ -19,19 +19,21 @@
 \usepackage[mathcal]{euscript}
 \newcommand{\cmark}{\ding{51}}
 \newcommand{\xmark}{\ding{55}}
-
+\usepackage{placeins}
 % Tables, colors
 \usepackage[table,dvipsnames]{xcolor}
 \usepackage{colortbl,hhline}
 \usepackage{booktabs}
-\usepackage{cellspace}
+% \usepackage{cellspace}
 \usepackage{makecell}
 \usepackage[most]{tcolorbox}
 \usepackage{threeparttable}
 % Figures
 \usepackage{graphicx}
 \usepackage{subcaption}
-
+\usepackage{tikz}
+\usepackage{standalone}
+\usetikzlibrary{arrows.meta,shapes.geometric}
 % Algorithms
 \usepackage[ruled,vlined]{algorithm2e}
 \usepackage{algpseudocode}
@@ -64,7 +66,7 @@
 \newtcolorbox{GrayBox}[2][]{%
   enhanced,
   float,
-  floatplacement=htbp,
+  % floatplacement=htbp,
   width=\columnwidth,
   colback=gray!10,
   colframe=black!70,
@@ -74,7 +76,7 @@
   right=1ex,
   top=1ex,
   bottom=1ex,
-  before skip=1ex,
+  before skip=0ex,
   after skip=0ex,
   title=#2,
   #1
@@ -111,7 +113,7 @@
 
 % ================= PAPER METADATA =================
 \newcommand{\paperabstract}{%
-Assigning source files to reference architecture modules supports conformance checking and system understanding. Identifiers, code content, static dependencies, and directory organization inform this mapping, but their usefulness depends on how they are represented and processed. We investigate the contribution of file representations, folder and member information, and dependency neighbors, defined as files connected by static dependencies. We study nine Java, C, and C++ systems with limited labels, comparing Word2Vec, Node2Vec, and UniXcoder representations with feature-only and graph-based predictors. We vary file, member, and folder graph configurations and conduct controlled dependency comparisons under supervised-only and self-training schedules. Representations that encode dependencies provide strong feature-only baselines, while folder nodes yield the largest and most consistent gains among graph configurations. However, these gains largely reflect information available through a directory rule and do not consistently improve predictions for files that depart from it. With file representations held fixed, neighbor access improves a Graph Attention Network (GAT) and a multilayer perceptron (MLP) receiving each file's representation and the mean representation of its neighbors on most systems. In contrast, directed, typed Heterogeneous Graph Transformer (HGT) propagation reduces median macro-F1 on most systems. An undirected graph with a single dependency relation largely removes these losses. Useful dependency information therefore does not necessarily imply beneficial propagation. Evaluations should distinguish information already encoded in file representations from the contribution of neighbor access and assess directory-departing files separately from aggregate performance.
+Assigning source files to reference architecture modules supports conformance checking and system understanding. Identifiers, code content, static dependencies, and directory organization inform this mapping, but their usefulness depends on how they are represented and processed. We investigate the contribution of file representations, folder and member information, and dependency neighbors, defined as files connected by static dependencies. We study ten Java, C, and C++ systems with limited labels, comparing Word2Vec, Node2Vec, and UniXcoder representations with feature-only and graph-based predictors. We vary file, member, and folder graph configurations and compare predictors with and without dependency neighbors, aggregated along the dependency direction or in both directions. Representations that encode dependencies provide strong feature-only baselines, while folder nodes yield the largest and most consistent gains among graph configurations. However, these gains largely reflect information available through a directory rule and do not consistently improve predictions for files that depart from it. With file representations held fixed, dependency neighbors raise the median score of a multilayer perceptron (MLP) receiving each file's representation and the mean representation of its neighbors, of a Graph Attention Network (GAT), and of a Heterogeneous Graph Transformer (HGT) when aggregated in both directions, with the smallest gain for HGT. Aggregating only along the dependency direction lowers median macro-F1 with Node2Vec, and the better direction depends on the system and not on the predictor or the representation. Useful dependency information therefore does not by itself determine whether neighbor aggregation helps. Evaluations should distinguish information already encoded in file representations from the contribution of neighbor access and its direction, and assess directory-departing files separately from aggregate performance.
 }
 \newcommand{\paperkeywords}{%
 Software Architecture \and
@@ -159,13 +161,21 @@ Linnaeus University, Växjö, Sweden \\
 \end{abstract}
 
 \input{1a_introduction}
-\input{1b_related_work}
+
 \input{1c_background}
+
 \input{2a_methodology}
+
 \input{2b_experiemnts}
+
 \input{3a_results}
+
 \input{3b_discussion}
+
+\input{1b_related_work}
+
 \input{5_threats}
+
 \input{6_conclusion}
 
 \footnotesize
