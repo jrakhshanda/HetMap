@@ -1,0 +1,281 @@
+% \documentclass[tikz,border=5pt]{standalone}
+% \usepackage[T1]{fontenc}
+% \usepackage{lmodern}
+% \usetikzlibrary{arrows.meta,shapes.geometric}
+
+% \begin{document}
+% \begin{tikzpicture}[
+%   x=1cm,y=1cm,
+%   font=\normalsize,
+%   folder/.style={
+%       rectangle,
+%       draw=black!60,
+%       fill=gray!10,
+%       line width=.8pt,
+%       minimum width=12mm,
+%       minimum height=7mm,
+%       inner sep=1pt,
+%     font=\normalsize
+%   },
+%   file/.style={
+%     circle,
+%     draw=black!60,
+%     fill=gray!10,
+%     line width=.8pt,
+%     minimum size=7mm,
+%     inner sep=0pt,
+%     font=\normalsize
+%   },
+%   member/.style={
+%     diamond,
+%     aspect=1,
+%     draw=black!60,
+%     fill=gray!10,
+%     line width=.8pt,
+%     minimum size=8mm,
+%     inner sep=1pt,
+%     font=\normalsize
+%   },
+%   edge/.style={
+%     -{Stealth[length=1.6mm,width=1.2mm]},
+%     draw=black!70,
+%     line width=.6pt,
+%     line cap=round,
+%     line join=round,
+%     shorten <=1.2pt,
+%     shorten >=1.5pt
+%   },
+%   relation/.style={
+%     edge,
+%     dash pattern=on 2pt off 1.5pt
+%   },
+%   dependency/.style={edge}
+% ]
+
+% % F: file-only graph.
+% \begin{scope}[xshift=0cm]
+%   \node at (.8,2.35) {\normalsize F};
+
+%   \node[file] (f1) at (0,0) {$f_1$};
+%   \node[file] (f2) at (1.6,0) {$f_2$};
+
+%   \draw[dependency] (f1) -- (f2);
+% \end{scope}
+
+% % FM: file-member graph.
+% \begin{scope}[xshift=3cm]
+%   \node at (.8,2.35) {\normalsize FM};
+
+%   \node[file] (fmf1) at (0,0) {$f_1$};
+%   \node[file] (fmf2) at (1.6,0) {$f_2$};
+%   \node[member] (fmm1) at (0,-1.4) {$m_1$};
+%   \node[member] (fmm2) at (1.6,-1.4) {$m_2$};
+
+%   \draw[dependency] (fmf1) -- (fmf2);
+%   \draw[dependency] (fmm1) -- (fmm2);
+%   \draw[relation] (fmm1) -- (fmf1);
+%   \draw[relation] (fmm2) -- (fmf2);
+% \end{scope}
+
+% % FF: folder-file graph.
+% \begin{scope}[xshift=6.0cm]
+%   \node at (.8,2.35) {\normalsize FF};
+
+%   \node[folder] (ffd) at (.8,1.55) {\sffamily Folder};
+%   \node[file] (fff1) at (0,0) {$f_1$};
+%   \node[file] (fff2) at (1.6,0) {$f_2$};
+
+%   \draw[relation] (ffd) -- (fff1);
+%   \draw[relation] (ffd) -- (fff2);
+%   \draw[dependency] (fff1) -- (fff2);
+% \end{scope}
+
+% % FFM: full graph.
+% \begin{scope}[xshift=9.0cm]
+%   \node at (.8,2.35) {\normalsize FFM};
+
+%   \node[folder] (ffmd) at (.8,1.55) {\sffamily Folder};
+%   \node[file] (ffmf1) at (0,0) {$f_1$};
+%   \node[file] (ffmf2) at (1.6,0) {$f_2$};
+%   \node[member] (ffmm1) at (0,-1.4) {$m_1$};
+%   \node[member] (ffmm2) at (1.6,-1.4) {$m_2$};
+
+%   \draw[relation] (ffmd) -- (ffmf1);
+%   \draw[relation] (ffmd) -- (ffmf2);
+%   \draw[dependency] (ffmf1) -- (ffmf2);
+%   \draw[dependency] (ffmm1) -- (ffmm2);
+%   \draw[relation] (ffmm1) -- (ffmf1);
+%   \draw[relation] (ffmm2) -- (ffmf2);
+% \end{scope}
+
+% \end{tikzpicture}
+% \end{document}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\documentclass[tikz,border=0pt]{standalone}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usetikzlibrary{arrows.meta,shapes.geometric}
+
+\begin{document}
+
+\begin{tikzpicture}[
+  x=1cm,y=1cm,
+  font=\sffamily\normalsize, %\fontsize{9}{11}\selectfont,
+  folder/.style={
+    rectangle,
+    draw=black!70,
+    fill=gray!10,
+    line width=.75pt,
+    minimum width=5mm,
+    minimum height=3.5mm,
+    inner sep=0pt
+  },
+  file/.style={
+    circle,
+    draw=black!70,
+    fill=gray!10,
+    line width=.75pt,
+    minimum size=6mm,
+    inner sep=0pt
+  },
+  member/.style={
+    diamond,
+    aspect=1,
+    draw=black!70,
+    fill=gray!10,
+    line width=.75pt,
+    minimum size=7mm,
+    inner sep=.5pt
+  },
+  edge/.style={
+    -{Stealth[length=1.7mm,width=1.2mm]},
+    draw=black!85,
+    line width=.7pt,
+    line cap=round,
+    line join=round,
+    shorten <=1.2pt,
+    shorten >=1.5pt
+  },
+  relation/.style={
+    edge,
+    dash pattern=on 2.5pt off 1.7pt
+  },
+  dependency/.style={edge},
+  panel title/.style={
+    font=\fontsize{10}{12}\selectfont
+  },
+  rel label/.style={
+    font=\fontsize{9}{10}\selectfont\itshape,
+    text=black,
+    inner sep=1pt
+  },
+  legend text/.style={
+    anchor=west,
+    inner sep=0pt,
+    align=left
+  }
+]
+
+\begin{scope}
+  \draw[
+    draw=gray!20,
+    line width=.4pt,
+    rounded corners=3pt
+  ] (-.15,1.05) rectangle (2.55,5.2);
+
+  \node[folder] at (.3,4.8) {};
+  \node[legend text] at (.7,4.8) {Folder};
+
+  \node[file,minimum size=5mm] at (.3,4.05) {};
+  \node[legend text] at (.7,4.05) {File};
+
+  \node[member,minimum size=6mm] at (.3,3.3) {};
+  \node[legend text] at (.7,3.3) {Member};
+
+  \draw[relation] (0,2.4) -- (.6,2.4);
+  \node[legend text] at (.7,2.4) {Structural};
+
+  \draw[dependency] (0,1.5) -- (.6,1.5);
+  \node[legend text] at (.7,1.5) {Dependency};
+\end{scope}
+
+% Graph panels.
+\begin{scope}[xshift=2.8cm]
+
+  % F: upper left.
+  \begin{scope}[shift={(0,6)}]
+    \node[panel title] at (1,.75) {\normalsize F};
+
+    \node[file] (f1) at (0,0) {$f_1$};
+    \node[file] (f2) at (2,0) {$f_2$};
+
+    \draw[dependency] (f1) -- (f2);
+  \end{scope}
+
+  % FM: upper right.
+  \begin{scope}[shift={(4,6)}]
+    \node[panel title] at (1,.75) {\normalsize FM};
+
+    \node[file] (fmf1) at (0,0) {$f_1$};
+    \node[file] (fmf2) at (2,0) {$f_2$};
+    \node[member] (fmm1) at (0,-1.3) {$m_1$};
+    \node[member] (fmm2) at (2,-1.3) {$m_2$};
+
+    \draw[dependency] (fmf1) -- (fmf2);
+    \draw[dependency] (fmm1) -- (fmm2);
+    \draw[relation] (fmm1) -- (fmf1);
+    \draw[relation] (fmm2) -- (fmf2);
+  \end{scope}
+
+  % FF: lower left.
+  \begin{scope}
+    \node[panel title] at (1,3.65) {\normalsize FF};
+
+    \node[folder] (ffp) at (1,2.9) {};
+    \node[folder] (ffd) at (1,1.6) {};
+    \node[file] (fff1) at (0,0) {$f_1$};
+    \node[file] (fff2) at (2,0) {$f_2$};
+
+    \draw[relation] (ffp) -- (ffd);
+    \draw[relation] (ffd) -- (fff1);
+    \draw[relation] (ffd) -- (fff2);
+    \draw[dependency] (fff1) -- (fff2);
+  \end{scope}
+
+  % FFM: lower right, with edge labels retained.
+  \begin{scope}[xshift=4cm]
+    \node[panel title] at (1,3.65) {\normalsize FFM};
+
+    \node[folder] (ffmp) at (1,2.9) {};
+    \node[folder] (ffmd) at (1,1.6) {};
+    \node[file] (ffmf1) at (0,0) {$f_1$};
+    \node[file] (ffmf2) at (2,0) {$f_2$};
+    \node[member] (ffmm1) at (0,-1.3) {$m_1$};
+    \node[member] (ffmm2) at (2,-1.3) {$m_2$};
+
+    \draw[relation] (ffmp) -- (ffmd)
+      node[rel label,midway,left=3pt] {parent\_of};
+
+    \draw[relation] (ffmd) -- (ffmf1)
+      node[rel label,midway,left=3pt] {contains};
+
+    \draw[relation] (ffmd) -- (ffmf2);
+
+    \draw[dependency] (ffmf1) -- (ffmf2)
+      node[rel label,midway,below=4pt] {depends\_on};
+
+    \draw[dependency] (ffmm1) -- (ffmm2)
+      node[rel label,midway,below=4pt] {depends\_on};
+
+    \draw[relation] (ffmm1) -- (ffmf1)
+      node[rel label,midway,left=3pt] {belongs\_to};
+
+    \draw[relation] (ffmm2) -- (ffmf2);
+  \end{scope}
+
+\end{scope}
+
+\end{tikzpicture}
+
+\end{document}
