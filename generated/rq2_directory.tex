@@ -1,0 +1,24 @@
+\begin{table}[h]
+\centering
+\caption{\fontsize{9.5}{12}\selectfont Accuracy (\%) of the directory baseline (Dir.) and of HGT with \ft{} features on FM, FFM and FT, median over 100 runs. FT is HGT on the file graph F with binary folder tokens added to the file vector. $n$ is the median number of test files misclassified by the baseline per split; the FM, FFM and FT columns under it report median accuracy on those files over splits with at least one baseline error. Dashes (--) indicate omitted values for systems with no baseline errors in most or all splits. Purity is the share of all files that belong to the majority module of their directory.\label{tab:dir_baseline}}
+\begin{adjustbox}{max width=\linewidth}
+\begin{tabular}{lrrrrrrrrr}
+\toprule
+& \multicolumn{4}{c}{Accuracy} & \multicolumn{4}{c}{Files the baseline gets wrong} & \\
+\cmidrule(lr){2-5}\cmidrule(lr){6-9}
+System & Dir. & FM & FFM & FT & $n$ & FM & FFM & FT & Purity \\
+\midrule
+A.UML   & 98.5  & 71.0 & 92.2  & 92.5 & 11   & 9.1  & 21.7 & 22.5 & 100.0 \\
+C.Img   & 100.0 & 67.3 & 97.9  & 99.3 & 0    & --   & --   & --   & 100.0 \\
+JabRef  & 97.2  & 79.4 & 95.8  & 93.4 & 27   & 45.3 & 26.3 & 25.0 & 99.1  \\
+Lucene  & 91.5  & 77.4 & 97.3  & 95.1 & 85.5 & 52.9 & 86.9 & 81.7 & 100.0 \\
+SH-3D   & 100.0 & 70.3 & 100.0 & 99.3 & 0    & --   & --   & --   & 100.0 \\
+T.Mates & 100.0 & 82.1 & 98.6  & 98.8 & 0    & --   & --   & --   & 100.0 \\
+Bash    & 91.8  & 59.5 & 84.8  & 85.9 & 21   & 24.6 & 26.1 & 27.8 & 91.8  \\
+HDF     & 93.4  & 50.8 & 91.8  & 92.6 & 8    & 27.3 & 50.0 & 40.0 & 100.0 \\
+Chrome  & 96.8  & 73.5 & 90.0  & 94.1 & 574  & 19.8 & 20.0 & 23.3 & 99.9  \\
+HDC     & 89.1  & 67.6 & 86.5  & 87.4 & 19   & 20.0 & 12.5 & 10.8 & 96.1  \\
+\bottomrule
+\end{tabular}
+\end{adjustbox}
+\end{table}

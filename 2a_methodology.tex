@@ -135,7 +135,7 @@ After combining the attention-head outputs, we denote the resulting message by $
 \begin{equation}
 h_t^{(1)} = \mathrm{LayerNorm}\left(m_t + h_t^{(0)}\right).
 \end{equation}
-Folder and member nodes, when present, contribute to file representations through message passing.
+Folder and member nodes, when present, contribute to file representations through message passing. 
  
 \subsubsection{Graph Attention Network (GAT)\label{sec:gat_model}}
 GAT~\cite{gat} aggregates neighbor representations using attention parameters shared across neighbors within each head, without the node-type- or edge-type-specific parameters of HGT. The outputs of the attention heads are concatenated. Our GAT implementation uses the same input projection, residual connection, and layer normalization as HGT, while replacing its neighbor aggregation mechanism. We add no self-loops; the residual connection retains the node's own representation.

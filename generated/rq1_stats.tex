@@ -1,20 +1,20 @@
-\begin{table}[t]
+\begin{table}[h]
 \centering
-\small
-\caption{Summary of pairwise differences in F1 points across ten systems. $\Delta$ is the median difference (first method minus second); $+$ve counts systems favoring the first method; $\uparrow / \downarrow$ gives the number of significant positive / negative differences.\label{tab:rq1_stats}}
+\caption{Summary of pairwise differences in F1 points across ten systems. $\Delta$ is the median difference (first method minus second). $+$ve is the number of systems favoring the first method, followed in parentheses by the numbers of significant positive ($\uparrow$) and negative ($\downarrow$) differences.\label{tab:rq1_stats}}
 \begin{adjustbox}{max width=\linewidth}
 \renewcommand{\arraystretch}{1.05}
-\begin{tabular}{lrrrrrr}
+\setlength{\tabcolsep}{8pt}
+\begin{tabular}{lrcrc}
 \toprule
-& \multicolumn{3}{c}{Macro F1} & \multicolumn{3}{c}{Micro F1} \\
-\cmidrule(lr){2-4}\cmidrule(lr){5-7}
-Comparison & $\Delta$ & $+$ve & $\uparrow / \downarrow$ & $\Delta$ & $+$ve & $\uparrow / \downarrow$ \\
+& \multicolumn{2}{c}{Macro F1} & \multicolumn{2}{c}{Micro F1} \\
+\cmidrule(lr){2-3}\cmidrule(lr){4-5}
+Comparison & $\Delta$ & $+$ve ($\uparrow$/$\downarrow$) & $\Delta$ & $+$ve ($\uparrow$/$\downarrow$) \\
 \midrule
-\zs{}$-$W2V   & $+$5.2 & 6 & 6 / 4 & $+$7.5 & 6 & 6 / 3 \\
-\ft{}$-$\zs{} & $+$9.1 & 9 & 9 / 0 & $+$9.2 & 10 & 10 / 0 \\
-\ft{}$-$W2V   & $+$17.5 & 9 & 9 / 0 & $+$19.2 & 10 & 9 / 0 \\
-\ft{}$-$N2V   & \best{$-$4.9} & 4 & 4 / 6 & \best{$-$3.3} & 3 & 3 / 6 \\
-N2V$-$W2V     & $+$20.3 & 9 & 9 / 1 & $+$16.2 & 9 & 9 / 1 \\
+\zs{}$-$W2V   & $+$5.2 & 6 (6/4) & $+$7.5 & 6 (6/3) \\
+\ft{}$-$\zs{} & $+$9.1 & 9 (9/0) & $+$9.2 & 10 (10/0) \\
+\ft{}$-$W2V   & $+$17.5 & 9 (9/0) & $+$19.2 & 10 (9/0) \\
+\ft{}$-$N2V   & \best{$-$4.9} & 4 (4/6) & \best{$-$3.3} & 3 (3/6) \\
+N2V$-$W2V     & $+$20.3 & 9 (9/1) & $+$16.2 & 9 (9/1) \\
 \bottomrule
 \end{tabular}
 \end{adjustbox}

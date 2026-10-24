@@ -7,12 +7,16 @@ For RQ1 and RQ2, we report median macro- and micro-F1 scores over the 100 runs p
 % ========================================
 \subsection{Comparing Lexical, Structural, and Contextual File Representations (RQ1)\label{sec:rq1}}
 
-RQ1 examines how much predictive information each file representation provides before additional graph-based message passing. Table~\ref{tab:rq1_mlp_features} reports the median macro-F1 and micro-F1 scores obtained with lexical Word2Vec, structural Node2Vec, and UniXcoder variants: \zs{} and \ft{}. Each representation is evaluated using the MLP. This classifier performs no message passing, although Node2Vec encodes dependency topology directly and \ft{} incorporates dependency information through its fine-tuning procedure. Table~\ref{tab:rq1_stats} summarizes the pairwise differences across all ten systems, with the number of systems favoring each method and the number of Holm-significant differences in each direction.
+RQ1 examines how much predictive information each file representation provides before additional graph-based message passing. Table~\ref{tab:rq1_mlp_features} reports the median macro-F1 and micro-F1 scores obtained with Word2Vec, Node2Vec, and UniXcoder variants: \zs{} and \ft{}. Each representation is evaluated using the MLP.  
+% The classifier performs no message passing, although Node2Vec encodes dependency topology directly and \ft{} incorporates dependency information through its fine-tuning procedure. 
+
 % _________ Results table __________
 \input{generated/rq1_mlp_features}
-\input{generated/rq1_stats}
-% _______________________
 Macro-F1 is lower than micro-F1 for every system and representation. Node2Vec achieves the highest median macro- and micro-F1 scores on six systems. On the other four systems, \ft{} obtains the highest median micro-F1, while the highest median macro-F1 is held by \ft{} on T.Mates and HDC, Word2Vec on JabRef, and \zs{} on SH-3D.
+
+\parg{Statistical significance of observed differences.} Table~\ref {tab:rq1_stats} summarizes the pairwise differences across all ten systems, with the number of systems favoring each method and the number of Holm-significant differences in each direction.
+% _________ Stats table __________
+\input{generated/rq1_stats}
 
 We first compare Word2Vec and \zs{}, the two representations that do not encode dependencies. They do not separate consistently: the significant differences fall in both directions, although \zs{} is favored on more systems. On macro-F1, \zs{} is significantly stronger on A.UML (medium effect), C.Img, SH-3D, T.Mates, Bash, and HDF (large effects), whereas Word2Vec is significantly stronger on JabRef (large effect), Lucene and Chrome (medium effects), and HDC (small effect). On micro-F1, \zs{} is significantly stronger on the same six systems, and Word2Vec is significantly stronger on JabRef and Lucene (large effects) and HDC (small effect); the difference in Chrome is not significant.
  
@@ -29,66 +33,49 @@ Representations that encode dependencies, either directly through random walks (
 % ========================================
 % ----------------- RQ2 ------------------
 % ========================================
-\subsection{Message Passing over Dependencies, Members, and Folders (RQ2) \label{sec:rq2}}
-RQ2 examines how mapping performance changes when graph structure is added to each representation. Figure~\ref{fig:rq2_lineplot} reports median macro-F1 and micro-F1 for the MLP and HGT under F, FF, FM, and FFM. We use Word2Vec, Node2Vec, and the fine-tuned variant \ft{}, which improves over \zs{} on nearly all systems (RQ1). F adds message passing over file dependencies, FF adds folder nodes, FM adds member nodes, and FFM adds both.
+\subsection{Message Passing over Dependency Edges and through Member and Folder Nodes (RQ2) \label{sec:rq2}}
+
+RQ2 examines how mapping performance changes for each representation when message passing over the file dependency graph is added and the graph is extended with folder and member nodes. Figure~\ref{fig:rq2_lineplot} reports median macro-F1 and micro-F1 for the MLP and HGT under F, FF, FM, and FFM. We use Word2Vec, Node2Vec, and the fine-tuned variant \ft{}, which improves over \zs{} on nearly all systems (RQ1). F adds message passing over file dependencies, FF adds folder nodes, FM adds member nodes, and FFM adds both.
 
 Table~\ref{tab:rq2_steps} summarizes five steps: MLP to F, adding members (F to FM, FF to FFM), and adding folders (F to FF, FM to FFM). For each system, $\Delta$ is the difference between the two configuration medians over 100 runs. The table reports the median of these ten system-level differences, the number of systems with a positive difference, and the number of systems with a significant gain or loss.
 %_______________
 \begin{figure*}[htb]
 \centering
-\includegraphics[width=0.93\textwidth]{Images/RQ2_lineplot_f1_macro.pdf}
-\includegraphics[width=0.93\textwidth]{Images/RQ2_lineplot_f1_micro.pdf}
+\includegraphics[width=1\textwidth]{Images/RQ2_lineplot_f1_macro.pdf}
+\includegraphics[width=1\textwidth]{Images/RQ2_lineplot_f1_micro.pdf}
 \caption{Median macro-F1 (top) and micro-F1 (bottom) for each representation, per system, across the MLP and HGT with increasing graph structure (F, FF, FM, FFM). Shaded areas denote interquartile ranges across the 100 runs. \label{fig:rq2_lineplot}}
 \end{figure*}
 \input{generated/rq2_stats}
 %_______________
 
-\parg{File-level HGT versus the MLP.} Moving from the MLP to file-level HGT improves Word2Vec and \ft{} more than Node2Vec. For Word2Vec and \ft{}, F improves the median macro-F1 by 7.5 and 6.7 points and the median micro-F1 by 9.0 and 4.6 points, with positive differences on nine systems for each representation and metric. Word2Vec has no significant loss, and \ft{} has one, on HDC macro-F1. For Node2Vec, the medians change by 0.8 and 2.2 points, with positive differences on six and seven systems. Significant losses occur on Lucene and HDC for both metrics and on HDF for macro-F1, but significant gains still outnumber them (five to three on macro-F1, seven to two on micro-F1).
+\parg{File-level HGT versus the MLP.} Moving from the MLP to file-level HGT improves Word2Vec and \ft{} more than Node2Vec. For Word2Vec and \ft{}, F improves median macro-F1 by 7.5 and 6.7 points and median micro-F1 by 9.0 and 4.6 points, with positive differences on nine systems for each representation and metric. Word2Vec has no significant losses, while \ft{} has one on HDC macro-F1. For Node2Vec, the corresponding changes are 0.8 and 2.2 points, with positive differences on six and seven systems. Significant losses occur on Lucene and HDC for both metrics and on HDF for macro-F1, but significant gains still outnumber losses (five to three on macro-F1, seven to two on micro-F1).
 
-\parg{Member-level context.} Adding member nodes to F lowers the median macro-F1 by 12.2 points for Word2Vec and by 1.2 points for both Node2Vec and \ft{}, and the median micro-F1 by 4.9, 1.3, and 1.8 points. The decline is largest for Word2Vec, where all ten differences have large effects. Significant losses outnumber significant gains for all three representations: on macro-F1, seven systems decline significantly for Word2Vec, five for Node2Vec, and six for \ft{}, against significant gains on three, none, and one. Adding member nodes also changes how features enter the model, depending on the representation (Section~\ref{sec:node_features}); with \ft{}, for example, member vectors come from an encoder fine-tuned on file-level text only. These results therefore describe the evaluated member configuration and not member information in general.
+\parg{Member-level context.} Adding member nodes to F lowers median macro-F1 by 12.2 points for Word2Vec and 1.2 points for both Node2Vec and \ft{}, and median micro-F1 by 4.9, 1.3, and 1.8 points, respectively. Word2Vec shows the largest decline, with large effects on all ten systems. Significant macro-F1 losses outnumber gains for every representation: seven versus three systems for Word2Vec, five versus none for Node2Vec, and six versus one for \ft{}.
+
+Adding member nodes also changes how features enter the model, depending on the representation (Section~\ref{sec:node_features}); for example, the \ft{} member vectors come from an encoder fine-tuned on file-level text. In addition, with one HGT layer, member-level dependencies cannot affect file predictions, so we test two layers at the end of this section. These results therefore concern the evaluated member configuration, not member information in general.
 
 \parg{Folder-level context.}
 Adding folder nodes produces the largest and most consistent changes. FF improves over F, and FFM improves over FM, on both metrics for every system and representation. All 120 system--representation--metric comparisons are significant with a large effect. Across the three representations, the median macro-F1 gains range from 25.6 to 44.4 points for FF $-$ F and from 28.9 to 43.0 points for FFM $-$ FM. The corresponding micro-F1 gains range from 16.5 to 32.1 points and from 20.6 to 39.9 points. Each comparison improves in at least 96 of the 100 paired runs.
  
 Within the folder-containing configurations, the effect of adding member nodes depends on the representation. FFM improves macro-F1 over FF on six systems each for Node2Vec and \ft{}, with median gains of 1.6 and 1.3 points, but on only three systems for Word2Vec, with a median loss of 4.4 points. For micro-F1, it improves seven, seven, and three systems for Node2Vec, \ft{}, and Word2Vec, with median changes of $+0.8$, $+1.1$, and $-1.0$ points. Significant macro-F1 losses occur on five systems for Word2Vec and on JabRef, Bash, and Chrome for both Node2Vec and \ft{}. For micro-F1, Node2Vec loses significantly only on Bash, and \ft{} on no system.
 
-
 \parg{Folder nodes and the directory baseline.\label{sec:directory_errors}}
 The large gains from adding folder nodes show that directory organization is informative for the evaluated mappings. To examine whether these gains also help files misclassified by directory information alone, we compare FM and FFM with \ft{} features against the directory hierarchy baseline of Section~\ref{sec:dir_predictor}.  FM and FFM differ only in the inclusion of folder nodes, allowing us to compare their performance with and without folder information. Table~\ref{tab:dir_baseline} gives the accuracy of the baseline, FM, and FFM per system, and the accuracy of FM and FFM on the files the baseline gets wrong.
 
-\begin{table}[!htb]
-\centering
-\small
-\caption{Accuracy (\%) of the directory baseline (Dir.) and of HGT with \ft{} features on FM and FFM, median over 100 runs. $n$ is the median number of test files misclassified by the baseline per split; the FM and FFM columns under it report median accuracy on those files over splits with at least one baseline error. Dashes (--) indicate omitted values for systems with no baseline errors in most or all splits. Purity is the share of all files that belong to the majority module of their directory.\label{tab:dir_baseline}}
-\begin{adjustbox}{max width=\linewidth}
-\begin{tabular}{lrrrrrrr}
-\toprule
-& \multicolumn{3}{c}{Accuracy} & \multicolumn{3}{c}{Files the baseline gets wrong} & \\
-\cmidrule(lr){2-4}\cmidrule(lr){5-7}
-System & Dir. & FM & FFM & $n$ & FM & FFM & Purity \\
-\midrule
-A.UML   & 98.5  & 71.0 & 92.2  & 11   & 9.1  & 21.7 & 100.0 \\
-C.Img   & 100.0 & 67.3 & 97.9  & 0    & --   & --   & 100.0 \\
-JabRef  & 97.2  & 79.4 & 95.8  & 27   & 45.3 & 26.3 & 99.1  \\
-Lucene  & 91.5  & 77.4 & 97.3  & 85.5 & 52.9 & 86.9 & 100.0 \\
-SH-3D   & 100.0 & 70.3 & 100.0 & 0    & --   & --   & 100.0 \\
-T.Mates & 100.0 & 82.1 & 98.6  & 0    & --   & --   & 100.0 \\
-Bash    & 91.8  & 59.5 & 84.8  & 21   & 24.6 & 26.1 & 91.8  \\
-HDF     & 93.4  & 50.8 & 91.8  & 8    & 27.3 & 50.0 & 100.0 \\
-Chrome  & 96.8  & 73.5 & 90.0  & 574  & 19.8 & 20.0 & 99.9  \\
-HDC     & 89.1  & 67.6 & 86.5  & 19   & 20.0 & 12.5 & 96.1  \\
-\bottomrule
-\end{tabular}
-\end{adjustbox}
-\end{table}
 The baseline reaches 89 to 100\% accuracy on every system. Without folder nodes, FM is 14 to 43 points below it. With folder nodes, FFM is within 3 points of the baseline on six systems and within 7 points on A.UML, Bash, and Chrome; it exceeds the baseline only on Lucene. Adding folder nodes therefore brings FFM close to the accuracy of the directory hierarchy baseline on most systems.
 
 Directory membership closely matches module membership: on eight systems, 99 to 100\% of files belong to the majority module of their directory, and only Bash (91.8\%) and HDC (96.1\%) have lower purity. Files that depart from the majority module of their directory are therefore rare on most systems, which limits what the analysis can show about them.
 
 On the files the baseline gets wrong, FFM gets most of them wrong on A.UML, JabRef, Bash, Chrome, and HDC, about 50\% on HDF, and most of them right only on Lucene. Compared with FM, FFM is more accurate on these files on A.UML, HDF, and Lucene, similar on Bash and Chrome, and less accurate on JabRef and HDC. JabRef shows why a higher overall accuracy is not sufficient: FFM improves over FM overall (79.4\% to 95.8\%), but its accuracy on these files falls (45.3\% to 26.3\%). This analysis does not isolate files whose module differs from the majority module of their directory, so it does not show how well FFM handles such exceptions.
+\input{generated/rq2_directory}
+
+\parg{Effect of two message-passing layers.} All results above use one HGT layer. To test whether this limits the results, we repeated F, FF, FM, and FFM with two layers, using the same labeled sets, representations, and training settings (Table~\ref{tab:rq2_depth}). For Word2Vec, the largest median macro-F1 improvements occur in FM and FFM. For \ft{}, FF improves more than FFM, so the improvement is not specific to member nodes. Node2Vec shows little change in either member-containing configuration, but F is significantly lower on macro-F1 on five systems.
+
+At matched two-layer depth, adding members to F still lowers median macro-F1 for all three representations. Adding members to FF remains negative for Word2Vec, while the small median gain for \ft{} shrinks and that for Node2Vec becomes slightly negative. Folder nodes retain the largest gains: both folder additions improve both metrics on all ten systems for every representation, with significant large effects. Thus, additional depth improves some configurations but does not establish a consistent benefit from adding member nodes.
+\input{generated/rq2_sensitivity}
 
 \begin{GrayBox}{Answer to RQ2.}
-The effect on mapping performance depends on what is added and on the representation. Moving from the MLP to file-level HGT improves Word2Vec and \ft{} more than Node2Vec. Member nodes give no consistent gain and often lower performance, most strongly for Word2Vec. Folder nodes provide the largest gains, improving performance on all ten systems for all three representations with significant large effects. However, the directory hierarchy alone achieves accuracy similar to FFM on most systems. On the files misclassified by that baseline, FFM is mostly incorrect on most systems, and on some it is less accurate than FM. Strong folder-based scores therefore do not establish reliable performance on directory-baseline errors or on files whose directory location is insufficient or misleading.
+The effect on mapping performance depends on what is added and on the representation. Moving from the MLP to file-level HGT improves Word2Vec and \ft{} more than Node2Vec. Member nodes give no consistent gain and often lower performance, most strongly for Word2Vec. Folder nodes provide the largest gains, with significant large effects on all ten systems for all three representations. Both findings remain with two HGT layers. However, the directory hierarchy alone achieves accuracy similar to FFM on most systems. On most systems with directory-baseline errors, FFM misclassifies most of these files, and on some it is less accurate than FM. Strong folder-based scores therefore do not establish reliable performance on directory-baseline errors or on files whose directory location is insufficient or misleading.
 \end{GrayBox}
 % ========================================
 % ----------------- RQ3 ------------------

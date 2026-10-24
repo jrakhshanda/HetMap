@@ -1,0 +1,29 @@
+\begin{table}[h]
+\centering
+\caption{\fontsize{9}{12}\selectfont Effect of a second message-passing layer on HGT. $\Delta$ is the median over ten systems of the change in median F1 (points) from one to two layers. +ve is the number of systems with a positive change, followed by the numbers with a significant gain ($\uparrow$) and loss ($\downarrow$).  Shading marks comparisons with at least five significant gains and at least twice as many significant gains as losses.\label{tab:rq2_depth}}
+\setlength{\tabcolsep}{8pt}
+\begin{adjustbox}{max width=\columnwidth}
+\begin{tabular}{llrcrc}
+\toprule
+& & \multicolumn{2}{c}{Macro-F1} & \multicolumn{2}{c}{Micro-F1} \\
+\cmidrule(lr){3-4}\cmidrule(lr){5-6}
+Input & Graph & $\Delta$ & +ve ($\uparrow$/$\downarrow$) & $\Delta$ & +ve ($\uparrow$/$\downarrow$) \\
+\midrule
+\multirow{4}{*}{W2V} & F & +0.5 & 6 (3/4) & 0.0 & 6 (4/3) \\
+  & FF & \best{+2.4} & \best{8 (6/1)} & \best{+0.5} & \best{6 (6/0)} \\
+  & FM & \best{+3.5} & \best{6 (6/3)} & \best{+2.2} & \best{8 (7/2)} \\
+  & FFM & \best{+10.3} & \best{6 (6/3)} & \best{+1.1} & \best{6 (6/3)} \\
+\midrule
+\multirow{4}{*}{N2V} & F & $-$0.6 & 4 (2/5) & $-$0.1 & 4 (2/4) \\
+  & FF & \best{+1.8} & \best{7 (5/2)} & +0.4 & 6 (4/3) \\
+  & FM & 0.0 & 5 (3/3) & +0.1 & 5 (3/3) \\
+  & FFM & +0.3 & 5 (4/3) & $-$0.2 & 3 (2/4) \\
+\midrule
+\multirow{4}{*}{\ft{}} & F & 0.0 & 6 (2/1) & \best{+0.8} & \best{8 (7/1)} \\
+  & FF & \best{+3.4} & \best{8 (8/2)} & \best{+1.4} & \best{10 (7/0)} \\
+  & FM & $-$0.2 & 5 (1/2) & 0.0 & 5 (3/3) \\
+  & FFM & \best{+2.6} & \best{7 (7/1)} & \best{+1.0} & \best{8 (8/1)} \\
+\bottomrule
+\end{tabular}
+\end{adjustbox}
+\end{table}

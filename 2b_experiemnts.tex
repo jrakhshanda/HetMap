@@ -62,11 +62,11 @@ All input representations are generated once per system and reused in every run 
 \parg{Training models.}
 All models are trained with Adam at a learning rate of $0.001$ for 200 epochs. The MLP has two hidden layers of 256 dimensions, and GAT and HGT use one layer with 256 hidden dimensions and four attention heads.
 
-RQ1 trains the MLP on each of the four representations. RQ2 trains HGT on the F, FF, FM, and FFM graph variants (Figure~\ref{fig:graph_variants_overview}) with Word2Vec, Node2Vec, and \ft{} features, using directed dependency edges.
+RQ1 trains the MLP on each of the four representations. RQ2 trains HGT on the F, FF, FM, and FFM graph variants (Figure~\ref{fig:graph_variants_overview}) with Word2Vec, Node2Vec, and \ft{} features, using directed dependency edges. RQ2 additionally trains HGT with two layers, each with 256 hidden dimensions and four attention heads, to test whether one layer limits what a file receives from its neighbors.
 
 RQ3 consists of controlled comparisons on the file graph, with all four representations. Within each predictor (MLP, GAT, and HGT), we vary only whether dependency neighbors are available and in which direction information flows. We keep the file representations, initial labeled sets, and training settings fixed and compare three settings. With neighbors \emph{disabled}, each file uses only its own representation. With \emph{directed} aggregation, a dependency edge from file $u$ to file $v$, where $u$ depends on $v$, carries information from $u$ to $v$. Each file therefore receives information from the files that depend on it. With \emph{undirected} aggregation, we also add the reverse edge, allowing each file to receive information from files it depends on. For the MLP, these settings determine which files contribute to the neighbor vector; for GAT and HGT, they determine which files send messages.
 
-The MLP with neighbors disabled is the RQ1 classifier, and HGT with directed neighbors on the file graph is the F configuration of RQ2, so these runs are shared. In total, the experiments comprise 45,000 runs.
+The MLP with neighbors disabled is the RQ1 classifier, and HGT with directed neighbors on the file graph is the F configuration of RQ2, so these runs are shared. In total, the experiments comprise 57,000 runs.
 
 % _______________ Directory Reference Predictor ________________
 \subsubsection{Directory Hierarchy Baseline\label{sec:dir_predictor}}
