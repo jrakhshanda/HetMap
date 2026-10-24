@@ -64,10 +64,26 @@
 % Hyperlinks and references (MUST be loaded last in almost all cases)
 \usepackage{hyperref}
 % ================= CUSTOM FORMATTING =================
+% \newtcolorbox{GrayBox}[2][]{%
+%   enhanced,
+%   float,
+%   % floatplacement=htbp,
+%   width=\columnwidth,
+%   colback=gray!10,
+%   colframe=black!70,
+%   arc=1mm,
+%   boxrule=0.5pt,
+%   left=1ex,
+%   right=1ex,
+%   top=1ex,
+%   bottom=1ex,
+%   before skip=0ex,
+%   after skip=0ex,
+%   title=#2,
+%   #1
+% }
 \newtcolorbox{GrayBox}[2][]{%
   enhanced,
-  float,
-  % floatplacement=htbp,
   width=\columnwidth,
   colback=gray!10,
   colframe=black!70,
@@ -77,8 +93,8 @@
   right=1ex,
   top=1ex,
   bottom=1ex,
-  before skip=0ex,
-  after skip=0ex,
+  before skip=8pt,
+  after skip=0pt,
   title=#2,
   #1
 }
@@ -116,7 +132,7 @@
 \newcommand{\paperabstract}{%
 Assigning source files to reference architecture modules supports conformance checking and system understanding. Code text, static dependencies, folder organization, and member-level information can inform this mapping, but their contributions depend on how they are represented and used. We investigate these contributions on ten Java, C, and C++ systems with limited labeled data. We compare lexical, structural, and contextual file representations using a multilayer perceptron (MLP), a Graph Attention Network (GAT), and a Heterogeneous Graph Transformer (HGT). With HGT, we vary graph granularity from source files alone to files with their members and enclosing folders. We also control access to dependency-neighbor information within fixed predictors and compare aggregation in one or both directions.
 
-Representations that encode dependencies provide strong baselines when evaluated with the MLP. Additional neighbor information can improve mapping, but its benefit depends on the predictor and aggregation direction; under aggregation in both directions, the GAT achieves the highest median macro-F1 with every representation. Within HGT variants, folder nodes produce the largest and most consistent gains, while member nodes provide no consistent improvement. However, a directory rule using the same labeled files reaches similar accuracy on most systems, and folder gains do not consistently extend to files the rule assigns incorrectly. Evaluation should therefore distinguish the contribution of additional graph context from information already available in file representations and directory organization.
+Representations that encode dependencies provide strong baselines when evaluated with the MLP. Additional neighbor information can improve mapping, but its benefit depends on the predictor and aggregation direction; under aggregation in both directions, the GAT achieves the highest median macro-F1 with every representation. Within HGT variants, folder nodes produce the largest and most consistent gains, while member nodes provide no consistent improvement. However, a directory rule using the same labeled files reaches similar accuracy on most systems, folder paths supplied as file features perform no worse than folder nodes, and folder gains do not consistently extend to files the rule assigns incorrectly. Evaluation should therefore distinguish the contribution of additional graph context from information already available in file representations and directory organization.
 }
 \newcommand{\paperkeywords}{%
 Code-to-Architecture Mapping \and
@@ -136,7 +152,8 @@ Representation Learning \and
 % _________________
 \author{Rakhshanda Jabeen \and
         Morgan Ericsson \and
-        Yuyao Duan}
+        Yuyao Duan \and
+        Anna Wingkvist}
 
 \institute{%
 Rakhshanda Jabeen \at
@@ -151,6 +168,10 @@ Linnaeus University, Växjö, Sweden \\
 Yuyao Duan \at
 Linnaeus University, Växjö, Sweden \\
 \email{yuyaoduan4@gmail.com}
+\and
+Anna Wingkvist \at
+Linnaeus University, Växjö, Sweden \\
+\email{anna.wingkvist@lnu.se}
 }
 % _________________
 

@@ -7,8 +7,7 @@ For RQ1 and RQ2, we report median macro- and micro-F1 scores over the 100 runs p
 % ========================================
 \subsection{Comparing Lexical, Structural, and Contextual File Representations (RQ1)\label{sec:rq1}}
 
-RQ1 examines how much predictive information each file representation provides before additional graph-based message passing. Table~\ref{tab:rq1_mlp_features} reports the median macro-F1 and micro-F1 scores obtained with Word2Vec, Node2Vec, and UniXcoder variants: \zs{} and \ft{}. Each representation is evaluated using the MLP.  
-% The classifier performs no message passing, although Node2Vec encodes dependency topology directly and \ft{} incorporates dependency information through its fine-tuning procedure. 
+RQ1 examines how much predictive information each file representation provides before additional graph-based message passing. Table~\ref{tab:rq1_mlp_features} reports the median macro-F1 and micro-F1 scores obtained with Word2Vec, Node2Vec, and UniXcoder variants: \zs{} and \ft{}. Each representation is evaluated using the MLP.
 
 % _________ Results table __________
 \input{generated/rq1_mlp_features}
@@ -41,41 +40,44 @@ Table~\ref{tab:rq2_steps} summarizes five steps: MLP to F, adding members (F to 
 %_______________
 \begin{figure*}[htb]
 \centering
-\includegraphics[width=1\textwidth]{Images/RQ2_lineplot_f1_macro.pdf}
-\includegraphics[width=1\textwidth]{Images/RQ2_lineplot_f1_micro.pdf}
+\includegraphics[width=0.98\textwidth]{Images/RQ2_lineplot_f1_macro.pdf}
+\includegraphics[width=0.98\textwidth]{Images/RQ2_lineplot_f1_micro.pdf}
 \caption{Median macro-F1 (top) and micro-F1 (bottom) for each representation, per system, across the MLP and HGT with increasing graph structure (F, FF, FM, FFM). Shaded areas denote interquartile ranges across the 100 runs. \label{fig:rq2_lineplot}}
 \end{figure*}
 \input{generated/rq2_stats}
 %_______________
 
-\parg{File-level HGT versus the MLP.} Moving from the MLP to file-level HGT improves Word2Vec and \ft{} more than Node2Vec. For Word2Vec and \ft{}, F improves median macro-F1 by 7.5 and 6.7 points and median micro-F1 by 9.0 and 4.6 points, with positive differences on nine systems for each representation and metric. Word2Vec has no significant losses, while \ft{} has one on HDC macro-F1. For Node2Vec, the corresponding changes are 0.8 and 2.2 points, with positive differences on six and seven systems. Significant losses occur on Lucene and HDC for both metrics and on HDF for macro-F1, but significant gains still outnumber losses (five to three on macro-F1, seven to two on micro-F1).
-
-\parg{Member-level context.} Adding member nodes to F lowers median macro-F1 by 12.2 points for Word2Vec and 1.2 points for both Node2Vec and \ft{}, and median micro-F1 by 4.9, 1.3, and 1.8 points, respectively. Word2Vec shows the largest decline, with large effects on all ten systems. Significant macro-F1 losses outnumber gains for every representation: seven versus three systems for Word2Vec, five versus none for Node2Vec, and six versus one for \ft{}.
-
-Adding member nodes also changes how features enter the model, depending on the representation (Section~\ref{sec:node_features}); for example, the \ft{} member vectors come from an encoder fine-tuned on file-level text. In addition, with one HGT layer, member-level dependencies cannot affect file predictions, so we test two layers at the end of this section. These results therefore concern the evaluated member configuration, not member information in general.
-
-\parg{Folder-level context.}
-Adding folder nodes produces the largest and most consistent changes. FF improves over F, and FFM improves over FM, on both metrics for every system and representation. All 120 system--representation--metric comparisons are significant with a large effect. Across the three representations, the median macro-F1 gains range from 25.6 to 44.4 points for FF $-$ F and from 28.9 to 43.0 points for FFM $-$ FM. The corresponding micro-F1 gains range from 16.5 to 32.1 points and from 20.6 to 39.9 points. Each comparison improves in at least 96 of the 100 paired runs.
+\parg{File-level HGT versus the MLP.} Moving from the MLP to file-level HGT improves Word2Vec and \ft{} more than Node2Vec. For Word2Vec and \ft{}, the improvement is positive on nine systems on both metrics, and the only significant loss is \ft{} on HDC macro-F1. For Node2Vec, the changes are small, and significant losses occur on Lucene and HDC for both metrics and on HDF for macro-F1, but significant gains still outnumber losses on both metrics.
  
-Within the folder-containing configurations, the effect of adding member nodes depends on the representation. FFM improves macro-F1 over FF on six systems each for Node2Vec and \ft{}, with median gains of 1.6 and 1.3 points, but on only three systems for Word2Vec, with a median loss of 4.4 points. For micro-F1, it improves seven, seven, and three systems for Node2Vec, \ft{}, and Word2Vec, with median changes of $+0.8$, $+1.1$, and $-1.0$ points. Significant macro-F1 losses occur on five systems for Word2Vec and on JabRef, Bash, and Chrome for both Node2Vec and \ft{}. For micro-F1, Node2Vec loses significantly only on Bash, and \ft{} on no system.
+\parg{Member-level context.} Adding member nodes to F lowers median macro-F1 and micro-F1 for every representation, most strongly for Word2Vec, with large effects on all ten systems. Significant macro-F1 losses outnumber gains for every representation. Adding member nodes also changes how features enter the model, depending on the representation (Section~\ref{sec:node_features}); for example, the \ft{} member vectors come from an encoder fine-tuned on file-level text. In addition, with one HGT layer, member-level dependencies cannot affect file predictions, so we test two layers below. These results therefore concern the evaluated member configuration, not member information in general.
+ 
+\parg{Folder-level context.}
+Adding folder nodes produces the largest and most consistent changes. FF improves over F, and FFM improves over FM, on both metrics for every system and representation. All 120 system--representation--metric comparisons are significant with a large effect, and each improves in at least 96 of the 100 paired runs.
+ 
+Within the folder-containing configurations, the effect of adding member nodes depends on the representation. FFM improves over FF for Node2Vec and \ft{} on both metrics, with small median gains, but lowers both metrics for Word2Vec. The significant macro-F1 losses for Node2Vec and \ft{} occur on JabRef, Bash, and Chrome. For micro-F1, Node2Vec loses significantly only on Bash, and \ft{} on no system.
 
-\parg{Folder nodes and the directory baseline.\label{sec:directory_errors}}
-The large gains from adding folder nodes show that directory organization is informative for the evaluated mappings. To examine whether these gains also help files misclassified by directory information alone, we compare FM and FFM with \ft{} features against the directory hierarchy baseline of Section~\ref{sec:dir_predictor}.  FM and FFM differ only in the inclusion of folder nodes, allowing us to compare their performance with and without folder information. Table~\ref{tab:dir_baseline} gives the accuracy of the baseline, FM, and FFM per system, and the accuracy of FM and FFM on the files the baseline gets wrong.
-
-The baseline reaches 89 to 100\% accuracy on every system. Without folder nodes, FM is 14 to 43 points below it. With folder nodes, FFM is within 3 points of the baseline on six systems and within 7 points on A.UML, Bash, and Chrome; it exceeds the baseline only on Lucene. Adding folder nodes therefore brings FFM close to the accuracy of the directory hierarchy baseline on most systems.
-
-Directory membership closely matches module membership: on eight systems, 99 to 100\% of files belong to the majority module of their directory, and only Bash (91.8\%) and HDC (96.1\%) have lower purity. Files that depart from the majority module of their directory are therefore rare on most systems, which limits what the analysis can show about them.
-
-On the files the baseline gets wrong, FFM gets most of them wrong on A.UML, JabRef, Bash, Chrome, and HDC, about 50\% on HDF, and most of them right only on Lucene. Compared with FM, FFM is more accurate on these files on A.UML, HDF, and Lucene, similar on Bash and Chrome, and less accurate on JabRef and HDC. JabRef shows why a higher overall accuracy is not sufficient: FFM improves over FM overall (79.4\% to 95.8\%), but its accuracy on these files falls (45.3\% to 26.3\%). This analysis does not isolate files whose module differs from the majority module of their directory, so it does not show how well FFM handles such exceptions.
-\input{generated/rq2_directory}
-
-\parg{Effect of two message-passing layers.} All results above use one HGT layer. To test whether this limits the results, we repeated F, FF, FM, and FFM with two layers, using the same labeled sets, representations, and training settings (Table~\ref{tab:rq2_depth}). For Word2Vec, the largest median macro-F1 improvements occur in FM and FFM. For \ft{}, FF improves more than FFM, so the improvement is not specific to member nodes. Node2Vec shows little change in either member-containing configuration, but F is significantly lower on macro-F1 on five systems.
+\subsubsection{Depth of message-passing layers} 
+To test whether using one HGT layer limits the results, we repeated F, FF, FM, and FFM with two layers, using the same labeled sets, representations, and training settings (Table~\ref{tab:rq2_depth}). For Word2Vec, the largest median macro-F1 improvements occur in FM and FFM. For \ft{}, FF improves more than FFM, so the improvement is not specific to member nodes. Node2Vec shows little change in either member-containing configuration, but F is significantly lower on macro-F1 on five systems.
 
 At matched two-layer depth, adding members to F still lowers median macro-F1 for all three representations. Adding members to FF remains negative for Word2Vec, while the small median gain for \ft{} shrinks and that for Node2Vec becomes slightly negative. Folder nodes retain the largest gains: both folder additions improve both metrics on all ten systems for every representation, with significant large effects. Thus, additional depth improves some configurations but does not establish a consistent benefit from adding member nodes.
 \input{generated/rq2_sensitivity}
 
+\subsubsection{Organizational information and the directory baseline\label{sec:directory_errors}}
+
+The large gains from adding folder nodes show that directory organization is informative for the evaluated mappings. We first test whether these gains require folder nodes using FD, which adds folder-path features directly to the \ft{} file vectors in graph F. We then examine whether the gains also help files misclassified by directory information alone, comparing FM, FFM, and FD against the directory hierarchy baseline (Section~\ref{sec:dir_predictor}). FM and FFM differ only in the inclusion of folder nodes. Table~\ref{tab:dir_baseline} reports overall accuracy for the baseline and the three models, and model accuracy on files misclassified by the baseline.
+\input{generated/rq2_directory}
+FD improves over F on every system with a large effect. Compared with FD, FF has lower median macro-F1 on eight systems, significantly so on six, and no significant gains. Folder nodes and relations therefore offer no significant improvement over supplying folder-path information directly as file features in this configuration.
+
+The baseline reaches 89 to 100\% accuracy on every system. Without folder nodes, FM is 14 to 43 points below it. FFM and FD are within 7 points of it on nine systems and exceed it only on Lucene. Folder information therefore brings both FFM and FD close to the accuracy of the directory hierarchy baseline on most systems.
+
+Directory membership closely matches module membership: on eight systems, 99 to 100\% of files belong to the majority module of their directory, and only Bash and HDC have lower purity. Files that depart from the majority module of their directory are therefore rare on most systems, which limits what the analysis can show about them.
+
+On the files the baseline gets wrong, FFM gets most of them wrong on A.UML, JabRef, Bash, Chrome, and HDC, about half on HDF, and most of them right only on Lucene. Compared with FM, FFM is more accurate on these files on A.UML, HDF, and Lucene, similar on Bash and Chrome, and less accurate on JabRef and HDC. JabRef illustrates the distinction between overall accuracy and accuracy on baseline errors: FFM improves over FM by 16 percentage points overall but falls by 19 points on these files. FD is within 10 points of FFM on these files on every system. This analysis does not isolate files whose module differs from the majority module of their directory, so it does not show how well FFM handles such exceptions.
+
 \begin{GrayBox}{Answer to RQ2.}
-The effect on mapping performance depends on what is added and on the representation. Moving from the MLP to file-level HGT improves Word2Vec and \ft{} more than Node2Vec. Member nodes give no consistent gain and often lower performance, most strongly for Word2Vec. Folder nodes provide the largest gains, with significant large effects on all ten systems for all three representations. Both findings remain with two HGT layers. However, the directory hierarchy alone achieves accuracy similar to FFM on most systems. On most systems with directory-baseline errors, FFM misclassifies most of these files, and on some it is less accurate than FM. Strong folder-based scores therefore do not establish reliable performance on directory-baseline errors or on files whose directory location is insufficient or misleading.
+The effect on mapping performance depends on what is added and on the representation. Moving from the MLP to file-level HGT improves Word2Vec and \ft{} more than Node2Vec. Member nodes give no consistent gain and often lower performance, most strongly for Word2Vec. Folder nodes provide the largest gains, with significant large effects on all ten systems for all three representations. The findings for member and folder nodes remain with two HGT layers.
+
+The directory hierarchy baseline achieves accuracy similar to FFM on most systems, and folder nodes do not consistently outperform folder information supplied directly as file features (FD). On most systems with directory-baseline errors, FFM misclassifies most of these files, and on some it is less accurate than FM. Strong folder-based scores therefore do not establish reliable performance on directory-baseline errors, and the analysis does not isolate files whose directory location is insufficient or misleading.
 \end{GrayBox}
 % ========================================
 % ----------------- RQ3 ------------------
@@ -94,7 +96,7 @@ This comparison differs from RQ2, where file-level message passing (F) is compar
 
 \parg{Does the direction of neighbor aggregation matter?} Undirected aggregation gives the higher median in almost every cell of Table~\ref{tab:rq3_reps}, which raises the question of whether it is better on every system. Figure~\ref{fig:rq3_direction} compares the two directions per system. It is not: the change from directed to undirected aggregation is positive on only five to eight systems per cell, and significant changes occur in both directions. On macro-F1, SH-3D, T.Mates, and JabRef score higher with directed aggregation in all 12 cells, and C.Img in eight. Lucene, Bash, Chrome, and HDC score higher with undirected aggregation in all 12 cells, and A.UML and HDF in 11. The differences reach 14.6 points for undirected aggregation (Bash, Word2Vec, \mlp{}) and 8.7 points for directed aggregation (T.Mates, Word2Vec, \mlp{}). Micro-F1 gives the same pattern for seven systems, whereas JabRef, C.Img, and A.UML are mixed. Undirected neighbors also add the reverse edges, so these results do not separate the direction of propagation from the larger neighborhood.
 
-\begin{figure}[t]
+\begin{figure}[ht]
 \centering
 \includegraphics[width=1\columnwidth]{Images/rq3_direction_f1_macro.pdf}
 \caption{Change in macro-F1, in F1 points, from directed to undirected aggregation (undirected $-$ directed) for each predictor and input representation; negative values mean directed aggregation scored higher. Each point is the median over 100 paired splits; hollow markers are not significant.\label{fig:rq3_direction}}

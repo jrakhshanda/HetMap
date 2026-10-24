@@ -15,9 +15,9 @@ Our evaluation uses ten Java, C, and C++ systems and covers lexical Word2Vec, st
 The configuration results motivate two complementary analyses. A directory analysis distinguishes errors corrected by a model from previously correct predictions that it makes incorrect. A dependency analysis compares ways of using dependency neighbors on all ten systems, enabling and disabling neighbors and aggregating them along the dependency direction or in both directions.
 
 We address three research questions:
-\begin{itemize}
+\begin{itemize}[leftmargin=1em, itemsep=1pt]
     \item \textbf{RQ1.} How does mapping performance vary across lexical, structural and contextual file representations?
-    \item \textbf{RQ2.} How does message passing over file dependencies and through member and folder nodes affect mapping performance for each representation?
+    \item \textbf{RQ2.} How does mapping performance change for each representation when message passing over file dependencies is extended with member and folder nodes, and how do folder-aware predictions compare with a directory rule?
     \item \textbf{RQ3.} How does using dependency neighbors change mapping performance, and how do the predictor and aggregation direction affect this change?
 \end{itemize}
 

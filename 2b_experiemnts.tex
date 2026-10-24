@@ -51,7 +51,7 @@ The HDF and HDC mappings were developed with industry partners and are part of t
 We repeat each experiment 100 times, each with a different initial labeled set. In each run, we randomly sample 5\% of the file nodes, with a minimum of 30 and a maximum of 200 files, and add one file from each GT module not represented in the sample. We use the same 100 initial labeled sets across all experiments and configurations, which allows paired comparisons. This procedure imposes a bounded labeling budget rather than a constant labeled proportion: before the module-coverage additions, the random sample covers approximately 9--20\% of the files in the five systems subject to the floor (C.Img, SH-3D, Bash, HDF, and HDC) and approximately 1\% in Chromium, the only system subject to the cap.
 
 \parg{Input representations.}
-For each system, Word2Vec embeddings are 128-dimensional vectors trained for 20 epochs with a context window of five on the file names and identifiers.
+For each system, Word2Vec embeddings§ are 128-dimensional vectors trained for 20 epochs with a context window of five on the file names and identifiers.
 
 Node2Vec learns 128-dimensional vectors from uniform random walks ($p=q=1$) on the undirected file-level dependency graph, with walk length 30, 200 walks per file, window 15, five skip-gram epochs, and five negative samples. Chromium uses 100 walks per file and one negative sample.
  
@@ -62,17 +62,20 @@ All input representations are generated once per system and reused in every run 
 \parg{Training models.}
 All models are trained with Adam at a learning rate of $0.001$ for 200 epochs. The MLP has two hidden layers of 256 dimensions, and GAT and HGT use one layer with 256 hidden dimensions and four attention heads.
 
-RQ1 trains the MLP on each of the four representations. RQ2 trains HGT on the F, FF, FM, and FFM graph variants (Figure~\ref{fig:graph_variants_overview}) with Word2Vec, Node2Vec, and \ft{} features, using directed dependency edges. RQ2 additionally trains HGT with two layers, each with 256 hidden dimensions and four attention heads, to test whether one layer limits what a file receives from its neighbors.
+\parg{Controlled comparisons.}
+RQ1 trains the MLP on each of the four representations, which isolates the information in the file representation because the MLP uses no graph structure.
+
+RQ2 trains HGT on all graph variants (Figure~\ref{fig:graph_variants_overview}) with Word2Vec, Node2Vec, and \ft{} features, using directed dependency edges. We additionally train all four HGT variants with two layers to test whether one layer limits what a file receives from its neighbors. We also train \textbf{FD}, an HGT model on graph F whose \ft{} file vector is extended with a binary folder-path vector, including ancestor folders. This vector uses the same tokenizer and vocabulary as the folder-node features (Sec.\ref{sec:node_features}), with one dimension per distinct folder token in the system. FD provides folder information without folder nodes.
 
 RQ3 consists of controlled comparisons on the file graph, with all four representations. Within each predictor (MLP, GAT, and HGT), we vary only whether dependency neighbors are available and in which direction information flows. We keep the file representations, initial labeled sets, and training settings fixed and compare three settings. With neighbors \emph{disabled}, each file uses only its own representation. With \emph{directed} aggregation, a dependency edge from file $u$ to file $v$, where $u$ depends on $v$, carries information from $u$ to $v$. Each file therefore receives information from the files that depend on it. With \emph{undirected} aggregation, we also add the reverse edge, allowing each file to receive information from files it depends on. For the MLP, these settings determine which files contribute to the neighbor vector; for GAT and HGT, they determine which files send messages.
 
-The MLP with neighbors disabled is the RQ1 classifier, and HGT with directed neighbors on the file graph is the F configuration of RQ2, so these runs are shared. In total, the experiments comprise 57,000 runs.
+The MLP with neighbors disabled is the RQ1 classifier, and HGT with directed neighbors on the file graph is the F configuration of RQ2, so these runs are shared. In total, the experiments comprise 58,000 runs.
 
 % _______________ Directory Reference Predictor ________________
 \subsubsection{Directory Hierarchy Baseline\label{sec:dir_predictor}}
 To assess how much folder-based configurations exploit files in the same directory sharing a module, we use a rule-based predictor based on the directory hierarchy and the initial labeled files. For each unlabeled file, it assigns the most common module among labeled files in the same directory. If none are present, it searches the directory subtree and then the subtrees of its parent directories until it finds labeled files. Ties are resolved by the module's frequency in the complete initial labeled set and then alphabetically. If no labeled files are found, the predictor assigns the most common module in the complete initial labeled set. It uses the directory hierarchy, but not directory-name text, source code, embeddings, dependencies, or test labels.
  
-We apply the predictor to all 100 initial labeled sets and compare it with HGT using \ft{} features on the directed FM and FFM graphs; the F and FF graphs are not included. For each system, we report the accuracy of the predictor, FM, and FFM, which equals micro-F1 because each file has exactly one module label. For the files that the predictor assigns incorrectly, we also count, per file and split, the correct FM predictions that FFM loses and the incorrect FM predictions that it corrects.
+We apply the predictor to all 100 initial labeled sets and compare it with HGT using \ft{} features on the directed FM and FFM graphs and with FD. For each system, we report the accuracy of the predictor, FM, FFM, and FD, which equals micro-F1 because each file has exactly one module label. For the files that the predictor assigns incorrectly, we also report the accuracy of each model on those files, and we count, per file and split, the correct FM predictions that FFM loses and the incorrect FM predictions that it corrects.
 
 % _________ Evaluation _________________
 \subsection{Performance Evaluation}
