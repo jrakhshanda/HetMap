@@ -12,45 +12,37 @@
 
 Title-- What Carries Architectural Signal? A Code-to-Architecture Mapping Study
 
-Abstract--Assigning source files to reference architecture modules supports conformance checking and system understanding. Identifiers, code content, static dependencies, and directory organization inform this mapping, but their usefulness depends on how they are represented and processed. We investigate the contribution of file representations, folder and member information, and dependency neighbors, defined as files connected by static dependencies. We study ten Java, C, and C++ systems with limited labels, comparing Word2Vec, Node2Vec, and UniXcoder representations with feature-only and graph-based predictors. We vary file, member, and folder graph configurations and compare predictors with and without dependency neighbors, aggregated along the dependency direction or in both directions. Representations that encode dependencies provide strong feature-only baselines, while folder nodes yield the largest and most consistent gains among graph configurations. However, these gains largely reflect information available through a directory rule and do not consistently improve predictions for files that depart from it. With file representations held fixed, dependency neighbors raise the median score of a multilayer perceptron (MLP) receiving each file's representation and the mean representation of its neighbors, of a Graph Attention Network (GAT), and of a Heterogeneous Graph Transformer (HGT) when aggregated in both directions, with the smallest gain for HGT. Aggregating only along the dependency direction lowers median macro-F1 with Node2Vec, and the better direction depends on the system and not on the predictor or the representation. Useful dependency information therefore does not by itself determine whether neighbor aggregation helps. Evaluations should distinguish information already encoded in file representations from the contribution of neighbor access and its direction, and assess directory-departing files separately from aggregate performance.
+Abstract-- Assigning source files to reference architecture modules supports conformance checking and system understanding. Code text, static dependencies, folder organization, and member-level information can inform this mapping, but their contributions depend on how they are represented and used. We investigate these contributions on ten Java, C, and C++ systems with limited labeled data. We compare lexical, structural, and contextual file representations using a multilayer perceptron (MLP), a Graph Attention Network (GAT), and a Heterogeneous Graph Transformer (HGT). With HGT, we vary graph granularity from source files alone to files with their members and enclosing folders. We also control access to dependency-neighbor information within fixed predictors and compare aggregation in one or both directions.
+
+Representations that encode dependencies provide strong baselines when evaluated with the MLP. Additional neighbor information can improve mapping, but its benefit depends on the predictor and aggregation direction; under aggregation in both directions, the GAT achieves the highest median macro-F1 with every representation. Within HGT variants, folder nodes produce the largest and most consistent gains, while member nodes provide no consistent improvement. However, a directory rule using the same labeled files reaches similar accuracy on most systems, and folder gains do not consistently extend to files the rule assigns incorrectly. Evaluation should therefore distinguish the contribution of additional graph context from information already available in file representations and directory organization.
 
 % ___________ a_introduction _____________
 \section{Introduction\label{sec:intro}}
 
 Maintaining a software architecture requires knowing which implementation elements belong to its modules. That correspondence can become difficult to maintain as a system grows: new files introduce responsibilities and dependencies, while architectural documentation may lag behind the implementation. Code-to-architecture (C2A) mapping addresses this problem by assigning source files to the modules of a reference architecture. The resulting mapping supports reflexion modeling, which compares implementation dependencies with architectural relations to identify divergence~\cite{reflexion1}. It therefore connects the modular decomposition used to reason about a system~\cite{parnas1972,clements2003} to the code in which that decomposition is realized.
- 
+
 Several sources of evidence can support a mapping. Identifiers express domain concepts and implementation roles. Contextual code representations capture information from declarations and operations. Static dependencies locate a file among other files with which it interacts, while directories record how developers organize the project~\cite{sarif,negar,garcia2013}. These sources need not agree: a utility may depend on several modules, terminology may be shared across responsibilities, and a directory may contain files assigned to different architectural modules.
- 
+
 The usefulness of an information source also depends on how it enters a predictor. A dependency embedding can encode graph structure before a classifier sees a file. Propagating over dependencies then supplies a second form of access to related files, with its own assumptions about direction, relation types, and aggregation. A gain from the embedding does not establish that this additional propagation will help. Similarly, a folder-aware model can improve overall agreement with a reference architecture while losing correct predictions for files that depart from a directory-based assignment. These distinctions motivate studying both the information supplied to a model and the changes caused by the way it processes that information.
 
 Prior architecture recovery and mapping work provides several ways to represent these sources. NEGAR learns structural representations using Node2Vec random walks on the dependency graph~\cite{negar}; GAER used a graph autoencoder with Word2Vec identifier embeddings for recovery~\cite{gaer}; prior mapping work uses lexical and organizational features with graph convolutional networks~\cite{jabeen2025graph}. Later work compares random walk-based methods with graph attention and diffusion-based rewiring and examines alternative uses of dependencies and folders~\cite{structsar}. These studies generally fix the representation chosen for each source, so it remains unclear which signal provides the strongest architectural evidence and how it should be represented.
 
-We study this question through C2A mapping, a prerequisite for reflexion modeling~\cite{reflexion1}. We formulate C2A mapping as a classification problem in which each file is assigned to one module of the reference architecture. We work in a low-label setting, where about 5\% of the files are already mapped, and the model infers the remaining assignments. The model is trained on the labeled files alone. This setting allows us to examine how file representations and graph relations contribute under limited supervision.
+We examine this question through C2A mapping, formulated as a classification problem in which each file is assigned to one module of the reference architecture. We work in a low-label setting, where about 5\% of the files are already mapped, and the model infers the remaining assignments. The model is trained on the labeled files alone. This setting allows us to examine how file representations and graph relations contribute under limited supervision.
 
-Our evaluation uses ten Java, C, and C++ systems and covers lexical Word2Vec, structural Node2Vec, and contextual UniXcoder representations. These serve as inputs to a graph-free neural baseline, to a Heterogeneous Graph Transformer (HGT)~\cite{hgt}, and, in the dependency comparison, to a neighbor MLP and a Graph Attention Network (GAT)~\cite{gat}. The heterogeneous configurations contain file nodes and, where applicable, folder nodes and one aggregate member node per file. They vary both the context available to a file and where feature content is stored. We compare these file representations and complement the configuration comparisons with controlled comparisons that change one design choice while holding the features, labeled splits, initialization, and training budgets fixed within each comparison.
+Our evaluation uses ten Java, C, and C++ systems and covers lexical Word2Vec, structural Node2Vec, and contextual UniXcoder representations. These serve as inputs to a graph-free neural baseline, to a Heterogeneous Graph Transformer (HGT)~\cite{hgt}, and, in the dependency comparison, to a neighbor MLP and a Graph Attention Network (GAT)~\cite{gat}. The heterogeneous configurations contain file nodes and, where applicable, folder nodes and one aggregate member node per file. They vary both the context available to a file and where feature content is stored. Alongside these configuration comparisons, we run controlled comparisons that change one design choice while holding the features, labeled splits, initialization, and training budgets fixed within each comparison.
 
-The configuration results motivate two complementary analyses. A directory analysis distinguishes errors corrected by a model from previously correct predictions that it makes incorrect. A dependency analysis compares ways of using dependency neighbors on all ten systems, switching neighbors on and off and aggregating them along the dependency direction or in both directions.
+The configuration results motivate two complementary analyses. A directory analysis distinguishes errors corrected by a model from previously correct predictions that it makes incorrect. A dependency analysis compares ways of using dependency neighbors on all ten systems, enabling and disabling neighbors and aggregating them along the dependency direction or in both directions.
 
-We address three research questions:
-\begin{itemize}
+\noindent The study is guided by the following research questions:
+
+\begin{itemize}[itemsep=3pt]
     \item \textbf{RQ1.} How does mapping performance vary across lexical, structural and contextual file representations?
-    \item \textbf{RQ2.} How does mapping performance change when file dependencies, member nodes, and folder nodes are added to each representation?
-    \item \textbf{RQ3.} How do the predictor and dependency direction affect the benefit of neighbors?
+    \item \textbf{RQ2.} How does message passing over file dependencies and through member and folder nodes affect mapping performance for each representation?
+    \item \textbf{RQ3.} How does using dependency neighbors change mapping performance, and how do the predictor and aggregation direction affect this change?
 \end{itemize}
 
-The results show that dependency information supports C2A mapping through both file representations and neighbor context, but the benefit of neighbor context depends on how it is processed. Folder organization yields the largest gains, largely reflecting information already available through a directory rule. Aggregate improvements can conceal regressions on individual files. These findings clarify how input signals and their use by a predictor affect C2A mapping across the nine systems studied\footnote{\label{fn:code}Code and data are available at \url{https://github.com/sse-lnu/hetmap}.}.
-% _________ 1b_related_work _____________
-\section{Related Work\label{sec:work}}
-
-Architecture recovery and code-to-architecture mapping both infer a system's modular structure from implementation artifacts, relying on evidence that includes static dependencies, code semantics, and directory organization, among other sources. Recovery produces a decomposition without a reference architecture, while mapping assigns entities to the modules of a given one. We evaluate C2A mapping, and draw on recovery research for representations of dependencies, lexical content and project organization. We organize this work by information source while keeping the two evaluation tasks distinct.
-
-Architecture recovery techniques have historically been built around one dominant signal. Dependency-based methods treat the system as a graph and partition it to maximize modularization quality, using search-based optimization~\cite{bunch,bunch_sahc_nahc,dagc,wca,mca_eca} or clustering over dependency-derived similarity~\cite{cct,hcc_2019,limbo,fca,neighborhood_tree_2019,gma_2021}. These perform well when dependencies align with architectural boundaries, but recovery quality is sensitive to how the graph is constructed and how relations are weighted, since shared utilities and layered interactions introduce cross-module edges. Semantic methods instead cluster artifacts by identifiers and comments in a latent space learned from source code~\cite{arc,zbr,risi2012fold} or from lexical cues~\cite{kargar2017semantic}, and directory-based methods use file names and paths as an architectural signal~\cite{file_clustering}. Non-structural signals can be noisy in isolation because reused terminology and utility directories mix entities from many modules. Hybrid methods therefore combine sources through weighted similarity fusion and many-objective remodularization~\cite{sc_misra,escrc,nsga3,sadat2019multi}, consensus clustering~\cite{ensemble_recovery}, semantic-guided propagation~\cite{evol}, or weighted graphs with community detection~\cite{sade,sarif}, using different mechanisms to combine the available evidence.
-
-Mapping shows the same pattern from a different starting point. Early work framed the assignment of unmapped entities as orphan adoption~\cite{tzerpos1997orphan}, and HuGMe introduced attraction functions to recommend mappings between entities and modules~\cite{christl2005equipping,christl2007automated}. Subsequent methods varied the signal and the learner: information-retrieval attraction based on textual similarity~\cite{bittencourt_IR}, supervised classifiers for orphan adoption~\cite{bibi2016supervised}, and a semi-supervised Naive Bayes approach combining lexical and dependency-derived information through Concrete Dependency Abstraction~\cite{olsson2019semi,olsson2022automatically}. Interactive and text-based approaches followed, comparing text classifiers for module assignment~\cite{florean2021textclassifierscomparison}, recommending mappings from natural-language architecture descriptions~\cite{InMap}, and integrating package- and class-level granularity~\cite{sinkala2023integrated}. More recent work frames method-level mapping as text classification over TF-IDF, GloVe, and LLM representations~\cite{johansson2024mapping}, examines how textual data properties condition embedding-based classification performance~\cite{johansson2025mapping}, and extracts architectural concepts from documentation and code~\cite{fuchss2025enabling}; LLM-based chain-of-thought prompting has also been used to map implementation units to a reference architecture~\cite{rukmono_deductive}, though such prompting-based approaches face scalability challenges on large codebases given context-size limits and the cost of repeatedly processing implementation artifacts.
-
-Representation-learning approaches differ in both the information they encode and the operations used to recover or predict modules. NEGAR clusters node2vec embeddings from the dependency graph alone, with no node semantics~\cite{negar}. Jabeen et al.~\cite{structsar} build on this by adding folder organization and comparing node2vec, meta-path walks, and graph attention with and without diffusion rewiring, without lexical features. GAER and Jabeen et al.~\cite{gaer,arl_2026} instead fix folder and identifier tokens into one encoding, Word2Vec-based in the former and contrastively trained with edge attributes in the latter, without comparing it to alternatives. For mapping, prior work evaluated graph neural networks on homogeneous and dependency-type-aware graphs~\cite{jabeen2025graph}, without folder hierarchies, containment, member-level artifacts, or separating graph contribution from feature contribution. These approaches motivate our distinction between representing an information source and using it during prediction. Our configuration comparisons span lexical, structural and contextual inputs, but retain differences between their training procedures and feature content. We therefore complement them with matched dependency controls and directory-error analyses. These controls assess specific design choices; they do not turn the broader configuration comparison into an isolated ranking of information sources.
-
-% 1c_background
+The results show that dependency information supports C2A mapping through both file representations and neighbor context, but the benefit of neighbor context depends on how it is processed. Folder organization yields the largest gains, largely reflecting information already available through a directory rule. Aggregate improvements can conceal regressions on individual files. These findings clarify how input signals and their use by a predictor affect C2A mapping across the ten systems studied\footnote{\label{fn:code}Code and data are available at \url{https://github.com/sse-lnu/hetmap}.}.
+% 1b_background
 \section{Background \label{sec:background}}
 
 Software artifacts are naturally relational and multi-typed. A system contains folders, source files or classes, and finer-grained program elements such as methods and fields, connected through relations that include folder containment, file-to-member composition, and static code-level dependencies.
@@ -206,147 +198,6 @@ p_i &= \text{softmax}\big(W_c z_i + b_c\big), \\
 \end{aligned}
 \end{equation}
 where $W_c \in \mathbb{R}^{|M| \times d}$, $b_c \in \mathbb{R}^{|M|}$, and $|M|$ is the number of architectural modules. The predicted module $\hat{y}_i$ is the one with the highest probability. Training minimizes categorical cross-entropy over the labeled file nodes.
- % _______ Graph Construction ___________
-\section{Methodology\label{sec:method}}
-
-This section presents the methodology for studying how architectural signals and graph design choices affect C2A mapping. We first formulate the mapping task and then describe the graphs and the structural, lexical, and contextual features used to initialize their nodes. We then present the MLP, HGT, and GAT predictors and the dependency neighbor settings.
- 
-Each research question varies one of these components and holds the others fixed. RQ1 varies the file representation, using the MLP. RQ2 varies the graph variant for each representation, using HGT. RQ3 varies the predictor, comparing the neighbor MLP with GAT and HGT, and the dependency neighbors they receive.
-
-\subsection{Problem Formulation\label{sec:problem}}
-We formulate the mapping task as node classification over a software graph $G=(V, E,\mathcal{A},\mathcal{R})$, where $\mathcal{A}$ and $\mathcal{R}$ denote the sets of node and relation types. Let $V_f \subseteq V$ be the set of file nodes, which are the targets of the mapping task. A small subset $L \subset V_f$ is labeled with known architectural module assignments $Y_L$, and the remaining file nodes $U = V_f \setminus L$ are unlabeled. The task is to learn a model:
-\begin{equation}
-    f_{\theta}: (G, L, Y_L) \rightarrow \hat{Y}_U,
-\end{equation}
-where $\theta$ denotes the learnable parameters. The model is trained on the labeled files only, but all nodes of $G$, labeled and unlabeled, are part of the graph during training.
- 
-Each model computes a $d$-dimensional embedding $z_i$ for every file $i \in V_f$, and the architectural module of a file is predicted from this embedding.
-
-% _______ Graph Construction ___________
-\subsection{Graph Construction\label{sec:het_graph}\label{sec:graph_variants}}
-We represent the software system as a graph of software artifacts connected by folder organization, member containment, and static dependencies.
-
-To study the individual and combined contributions of folder and member information, we construct four graph variants that differ in the node types they contain. They are named after these types: F (file nodes only), FF (folder and file nodes), FM (file and member nodes), and FFM (folder, file, and member nodes). All variants retain the dependency relation. F is homogeneous, with one node type and one relation type, and the other three variants are heterogeneous. Figure~\ref{fig:graph_variants_overview} provides a visual overview.
- 
-\begin{figure}[h]
-\centering
-\resizebox{0.98\linewidth}{!}{\input{Images/graph_variants.tex}}
-\caption{Graph variants F, FM, FF, and FFM. Files $f_i$ are the prediction targets, and each $m_i$ aggregates the members of file $f_i$. Arrows point from source to target: dashed arrows are structural relations and solid arrows are dependencies. Relation names are shown on FFM only. The panels omit further dependency edges and folder levels; Table~\ref{tab:relation_types} lists the relations with the node types they connect. Feature construction also depends on the variant, as described in Section~\ref{sec:node_features}.}
-\label{fig:graph_variants_overview}
-\end{figure}
-
-\subsubsection{Nodes and Relations}
-The complete graph (FFM) has three node types. File nodes represent source files and are the targets of code-to-architecture mapping. Because logical components are often implemented through namespaces or directory structures that group source code providing a particular functionality~\cite{fundamentals_sa, garcia2013}, folder nodes represent directory levels of the project, with one node per level. Each file has one summarized member node covering the methods, fields, constructors, and variables of that file. This retains member-level information while avoiding the large and sparse graphs produced by representing individual members.
-
-Four relations connect these nodes, as listed in Table~\ref{tab:relation_types}. Three are structural and encode organization and containment, and the fourth encodes static dependencies. Folder nodes are connected through \emph{parent\_of} edges, forming chains such as \texttt{app} $\rightarrow$ \texttt{app/ui} $\rightarrow$ \texttt{app/ui/views}, and \emph{contains} edges link each folder to its files. A \emph{belongs\_to} edge links each member node to its enclosing file.
-
-Messages along structural relations flow toward the file. Folder information passes down the hierarchy through \emph{parent\_of} and \emph{contains} edges, and member information passes up to the file through \emph{belongs\_to} edges. No reverse edges are added, so folder and member nodes are not updated from files through structural relations.
-
-The fourth relation, \emph{depends\_on}, encodes static dependencies, which provide direct evidence of how source files interact~\cite{negar, deps_impact}. Dependencies were extracted with the Depends tool~\cite{depends}, which analyzes the syntactic structure of the projects and identifies entities together with several categories of static relations. We merge all dependency types into a single relation, drop duplicate edges, and remove edges whose endpoints belong to the same file.
-
-Dependency endpoints depend on the graph variant. In FM and FFM, dependencies connect either two files or two member nodes. Dependencies between a file and a member are resolved between their corresponding files. In F and FF, all member endpoints are replaced by their enclosing files, so all dependencies connect file nodes.
-
-RQ1 and RQ3 use the homogeneous file-level graph F for graph-based models. RQ2 uses all four variants to examine progressively richer graph structure, adding folder nodes in FF, member nodes in FM, and both in FFM.
-
-\begin{table}[htb]
-\centering
-\caption{Graph relations and node types.}
-\label{tab:relation_types}
-\renewcommand{\arraystretch}{1.0}
-\setlength{\tabcolsep}{4pt}
-\begin{tabularx}{\columnwidth}{@{}l l >{\raggedright\arraybackslash}X@{}}
-\toprule
-Relation & Source $\to$ target & Description \\
-\midrule
-\emph{parent\_of}
-& folder $\to$ folder
-& Directory hierarchy. \\
-\emph{contains}
-& folder $\to$ file
-& Folder contains a file. \\
-\emph{belongs\_to}
-& member $\to$ file
-& Links a member node to its file. \\
-
-\multirow{2}{*}{\emph{depends\_on}}
-& file $\to$ file
-& File-level dependencies. \\
-& member $\to$ member
-& Member-level dependency in FM and FFM. \\
-\bottomrule
-\end{tabularx}
-\end{table}
-% _________ Node Feature Initialization ______________
-\subsection{Node Feature Initialization \label{sec:node_features}}
-Folder nodes are initialized in the same way in every setting. File and member nodes are initialized with one of the representations compared in RQ1: lexical embeddings from Word2Vec, structural embeddings from Node2Vec, or contextual embeddings from UniXcoder, used zero-shot or fine-tuned with dependencies.
-
-Member information enters the model differently across representations. Word2Vec includes member identifiers in file vectors when member nodes are absent and places them in member nodes otherwise. UniXcoder provides member text only through member nodes, while Node2Vec assigns each member node its file's vector. Adding member nodes thus changes the placement or availability of information as well as the graph structure, so comparisons across graph variants are interpreted separately for each representation.
-
-\subsubsection{Folder Node Features}
-Folder nodes use a binary bag-of-words representation of the folder tokens along their paths, after removing common project-root tokens. For example, \texttt{app/ui/views} is represented by \texttt{app}, \texttt{ui}, and \texttt{views}. Including the tokens of its ancestors preserves each folder's hierarchical context.
-
-\subsubsection{Word2Vec (W2V): Lexical Features\label{sec:node_w2v}}
-Source code identifiers encode domain concepts and implementation roles, making them useful signals for C2A mapping~\cite{sarif}. Following Jabeen et al.~\citep{gaer}, we extract tokens from file names and member identifiers, including methods, fields, constructors, and variables. We split camelCase, PascalCase, and snake\_case identifiers, convert tokens to lowercase, and remove stopwords and non-alphabetic tokens. Each node vector is the mean of the skip-gram Word2Vec embeddings of its associated tokens~\cite{word2vec}.
-
-In FM and FFM, file nodes use file-name tokens, while member nodes use member identifiers. In F and FF, member identifiers are included in the file vector instead, and the MLP uses the same file vector as in F and FF. Member identifiers therefore remain available in every variant.
-
-\subsubsection{Node2Vec (N2V): Structural Features \label{sec:node_n2v}}
-Chen et al.~\citep{negar} observe that files in the same architectural module can occupy a dense local dependency region without being directly connected. They use random-walk embeddings to capture this longer-range structure for architecture recovery. In our earlier study of dependency-only recovery, which follows their setup, Node2Vec was among the best-performing learned representations~\cite{structsar}. Therefore, we use Node2Vec~\cite{node2vec} embeddings computed with uniform random walks on the undirected file-level dependency graph as a structural initialization. These embeddings encode dependency structure without using identifiers or folder location.
-
-In FM and FFM, each summarized member node receives the Node2Vec embedding of its corresponding file.
- 
-\subsubsection{UniXcoder: Contextual Features \label{sec:unixcoder}}
-For contextual initialization, we use UniXcoder~\cite{unixcoder}, a pretrained code transformer. We parse each source file with Tree-sitter~\cite{tree_sitter}using the corresponding Java, C, or C++ grammar. The syntax tree determines which source fragments are passed to the encoder, but is not itself an input to the model. Extraction produces two views. The file-level view contains type declarations, fields or global variables, and constructor signatures with short body excerpts where applicable. The member-level view contains methods or functions. Each view produces one vector per file. Member-level text is split into overlapping chunks whose embeddings are mean-pooled.
-
-The zero-shot variant (\zs{}) uses the pretrained weights. The dependency-guided variant is fine-tuned separately for each system with a contrastive objective~\cite{infonce} using dependency-based positive pairs. Fine-tuning uses both file-level and member-level views, without module labels. The fine-tuned encoder then produces one vector per view for each file.
-
-Positive pairs are drawn from the two-hop neighborhood to capture longer-range dependency structure~\cite{structsar}, with dependencies treated as undirected. For each anchor file, two positives are sampled at random from the eight two-hop candidates that share the most one-hop neighbors with it. Files without a two-hop candidate fall back to a direct neighbor. Other files in the batch serve as negatives, except directly connected files, which are masked unless selected as the positive pair.
-
-% __________ Model ________________
-\subsection{Mapping Models\label{sec:mapping_models}}
-% CHANGED: opener from the attachment, with the research questions that use each model.
-We compare models that use file features alone with models that incorporate graph structure. RQ1 uses the MLP, RQ2 uses HGT, and RQ3 compares the neighbor MLP, GAT, and HGT. All models use the same classification head to predict architectural modules. Throughout, $\mathcal{N}(\cdot)$ denotes the neighborhood of a node.
-
-\subsubsection{Multilayer Perceptron (MLP)\label{sec:mlp}}
-The MLP predicts module logits directly from a file-level input vector. Each hidden layer computes:
-\begin{equation}
-h_i^{(k+1)} = \text{ReLU}\big(W^{(k)} h_i^{(k)} + b^{(k)}\big),
-\end{equation}
-with $h_i^{(0)} = x_i$ the file feature vector and $W^{(k)}, b^{(k)}$ the learnable parameters of layer $k$, and ReLU is the rectified linear unit~\cite{relu}. The input $x_i$ contains the single representation being evaluated.
- 
-For RQ3, we incorporate dependency neighborhood information in the MLP by concatenating each file's vector $x_i$ with the mean $\bar{x}_{\mathcal{N}(i)}$ of its direct neighbors' vectors in the dependency graph, giving $[x_i \,\|\, \bar{x}_{\mathcal{N}(i)}]$. We refer to the MLP with this input as the neighbor MLP (\mlp{}).
- 
-\subsubsection{Heterogeneous Graph Transformer (HGT)\label{sec:hgt_model}}
-Node types have different feature spaces depending on the graph variant and the initialization strategy, so HGT first maps the input vector $x_t$ of each node $t$ into a shared hidden space using a type-specific linear transformation followed by ReLU, which gives its initial representation $h_t^{(0)}$. One HGT layer~\cite{hgt} then updates node representations through multi-head attention over their neighbors.
- 
-For a target node $t$ and a source node $s$ connected by an edge $e$, the layer computes a message $M(s,e,t)$ and an attention weight $\alpha(s,e,t)$, and aggregates them as:
-\begin{align}
-m_t &= \sum_{s \in \mathcal{N}(t)} \alpha(s,e,t)\, M(s,e,t), \\
-M(s,e,t) &= W^{\mathrm{MSG}}_{\phi(e)}\, V_{\tau(s)}\, h_s, \notag \\
-\alpha(s,e,t) &= \operatorname*{softmax}_{s \in \mathcal{N}(t)} \frac{\big(K_{\tau(s)} h_s\big)^{\top} W^{\mathrm{ATT}}_{\phi(e)}\, \big(Q_{\tau(t)} h_t\big)\, \mu_{\langle \tau(s),\phi(e),\tau(t)\rangle}}{\sqrt{d_h}}. \notag
-\end{align}
-\noindent where $\tau(\cdot)$ is the node type, $\phi(e)$ is the edge type, $V$, $K$, and $Q$ are type-specific linear transformations, $W^{\mathrm{MSG}}$ and $W^{\mathrm{ATT}}$ are edge-type-specific matrices, $\mu$ is a learned prior for each meta-relation, $d_h$ is the head dimension, and attention-head indices are omitted for brevity. These parameters allow a \emph{contains} edge from a folder and a \emph{depends\_on} edge from a dependent file to receive different attention weights.
- 
-Finally, the aggregated message is combined with the node's projected input $h_t^{(0)}$ through a residual connection~\cite{residual_connection} followed by layer normalization:
-\begin{equation}
-h_t^{(1)} = \mathrm{LayerNorm}\left(m_t + h_t^{(0)}\right).
-\end{equation}
-Folder and member nodes, when present, contribute to file representations through message passing.
- 
-\subsubsection{Graph Attention Network (GAT)\label{sec:gat_model}}
-GAT~\cite{gat} aggregates neighbor representations using attention parameters shared across neighbors within each head, without the node-type- or edge-type-specific parameters of HGT. The outputs of the attention heads are concatenated. Our GAT implementation uses the same input projection, residual connection, and layer normalization as HGT, while replacing its neighbor aggregation mechanism. We add no self-loops; the residual connection retains the node's own representation.
- 
-\subsubsection{Classification Head\label{sec:head}}
-All three predictors use the same classification head. The file embedding $z_i \in \mathbb{R}^{d}$, obtained from the last hidden layer of the MLP or the message-passing layer of GAT and HGT, is passed to a linear layer that produces one score per architectural module. A softmax converts these scores into a probability distribution:
-\begin{equation}
-\label{eq:head}
-\begin{aligned}
-p_i &= \text{softmax}\big(W_c z_i + b_c\big), \\
-\hat{y}_i &= \arg\max_m p_{i,m},
-\end{aligned}
-\end{equation}
-where $W_c \in \mathbb{R}^{|M| \times d}$, $b_c \in \mathbb{R}^{|M|}$, and $|M|$ is the number of architectural modules. The predicted module $\hat{y}_i$ is the one with the highest probability. Training minimizes categorical cross-entropy over the labeled file nodes.
-
 % ___________ 2b_experiemnts ___________________
 \section{Experiments}
 This section describes the benchmark systems, the experimental configuration, the directory-based reference predictor, and the evaluation procedure used to answer the three research questions.
@@ -460,7 +311,7 @@ Representations that encode dependencies, either directly through random walks (
 % ========================================
 % ----------------- RQ2 ------------------
 % ========================================
-\subsection{Mapping Performance as File, Member, and Folder Context Are Added (RQ2) \label{sec:rq2}}
+\subsection{Message Passing over Dependencies, Members, and Folders (RQ2) \label{sec:rq2}}
 RQ2 examines how mapping performance changes when graph structure is added to each representation. Figure~\ref{fig:rq2_lineplot} reports median macro-F1 and micro-F1 for the MLP and HGT under F, FF, FM, and FFM. We use Word2Vec, Node2Vec, and the fine-tuned variant \ft{}, which improves over \zs{} on nearly all systems (RQ1). F adds message passing over file dependencies, FF adds folder nodes, FM adds member nodes, and FFM adds both.
 
 Table~\ref{tab:rq2_steps} summarizes five steps: MLP to F, adding members (F to FM, FF to FFM), and adding folders (F to FF, FM to FFM). For each system, $\Delta$ is the difference between the two configuration medians over 100 runs. The table reports the median of these ten system-level differences, the number of systems with a positive difference, and the number of systems with a significant gain or loss.
@@ -524,7 +375,7 @@ The effect on mapping performance depends on what is added and on the representa
 % ========================================
 % ----------------- RQ3 ------------------
 % ========================================
-\subsection{Comparing Predictors and Dependency Direction (RQ3)\label{sec:rq3}}
+\subsection{Dependency Neighbors, Predictors, and Aggregation Direction (RQ3)\label{sec:rq3}}
 
 RQ2 shows that the effect of graph context depends on the representation, configuration, and system. However, its comparison of the MLP with file-level HGT changes both the predictor and the availability of dependency messages. RQ3 therefore compares each predictor with dependency neighbors disabled and enabled, using HGT, GAT, and a neighbor MLP (\mlp{}). It also compares directed and undirected aggregation to examine whether the benefit depends on how dependency neighbors are aggregated. We evaluate all three predictors with all four input representations.
 
@@ -596,48 +447,46 @@ Several results are consistent with this. With N2V and undirected aggregation, n
 Evaluation should establish what the input representation already provides, then isolate neighbor access within a fixed predictor. Comparing a graph model with a graph-free MLP changes both the predictor and its access to structure; switching neighbors on and off within the same predictor tests whether that access helps.
 
 Macro and micro F1 scores should be read together, since correctly mapping more files does not necessarily improve performance across modules. The directory analysis adds a further requirement: aggregate scores should be accompanied by evidence about files that depart from directory-based assignments. Together, these comparisons distinguish the contributions of input features, neighbor processing, and neighbor direction, while exposing limitations hidden by aggregate scores. These points concern the ten systems and the compared configurations and do not rank the signals or the predictors in general.
-
-% _____________ 5_threats ________________
-\section{Discussion\label{sec:discussion}}
-
-The research questions examine where architectural signal resides and how a mapping model can use it. RQ1 compares what file representations encode before message passing, RQ2 adds file, member, and folder context and compares the folder gains with a directory-based rule, and RQ3 examines how the predictor and the direction in which it aggregates dependency neighbors change what they contribute. This section considers the three together and states the conditions under which they hold.
-
-\parg{Dependency information in file representations.}
-RQ1~\ref{sec:rq1} compares file representations before the predictor exchanges information between linked files, so the results reflect the architectural information encoded in each representation. Node2Vec, which is learned from the dependency graph alone, without labels, has the highest median micro-F1 and macro-F1 on six of the ten systems. Fine-tuned UniXcoder significantly improves over its zero-shot counterpart on micro-F1 on all ten systems and on macro-F1 on nine. Since the zero-shot encoder receives no dependency signal, this shows that fine-tuning on dependency-derived pairs adds information beyond that of pretrained code representations alone. Dependency information can therefore provide useful architectural signal before a predictor combines information across dependency links, either by encoding graph position directly in Node2Vec or by adapting a contextual code representation through dependency-guided fine-tuning.
-
-The usefulness of this signal varies with the relation between dependency structure and the reference architecture. Node2Vec's micro-F1 is lower on the three least homophilic systems, SH-3D, HDF, and T.Mates (Table~\ref{tab:datasets}), with a median of $58$ compared with $72$ on the remaining seven. When dependencies frequently cross module boundaries, random walks may place files from different modules in similar structural neighborhoods, limiting the module-discriminating information available to Node2Vec. Homophily is computed from the reference mapping and is therefore unavailable before a mapping exists; it is used here to interpret the observed pattern, not to select a representation in practice.
-
-Fine-tuned UniXcoder shows a different pattern on the low-homophily systems. Its median micro-F1 is $67$ on SH-3D, HDF, and T.Mates, compared with $69.5$ on the remaining seven. It exceeds Node2Vec by $9$ and $10$ micro-F1 points on SH-3D and T.Mates, which combine low homophily with the highest average degrees, $\langle k \rangle$ of $23.43$ and $22.90$. In these systems, dependency neighborhoods may span several modules, while the code content represented by UniXcoder can provide complementary evidence within such mixed neighborhoods. HDF is the exception: Node2Vec remains ahead of \ft{} ($57$ versus $48$ micro-F1), although every representation performs comparatively poorly on this system.
-
-The two representations without dependency information, Word2Vec and zero-shot UniXcoder, show no consistent ordering. Their weaker overall results reinforce that the advantage of Node2Vec and \ft{} is associated with dependency information rather than with the use of a graph embedding or a code encoder alone.
-
-The RQ2 and RQ3 comparison concerns a different use of dependencies. While Node2Vec learns file vectors from unlabeled random walks, the neighbor-based predictors use dependency links while learning the mapping from the available labels. The results show that useful dependency information in an input representation does not by itself determine whether this additional neighbor use helps: with N2V, directed aggregation lowers the median macro-F1 for all three predictors, whereas undirected aggregation raises it, and HGT gains least from neighbors with every representation. The effect therefore depends on how the predictor aggregates the neighborhood and in which direction.
-
-\parg{Folder organization and architectural exceptions.}
-The gains from adding folder nodes in RQ2 show that directory organization helps reproduce the reference mapping. However, extending a directory assignment is different from identifying files that depart from it. The directory analysis separates these cases by checking, on the files that a directory-based baseline gets wrong, which incorrect predictions of FM the folder nodes correct and which correct predictions they lose (Section~\ref{sec:directory_errors}).
-
-Lucene and HDF mainly illustrate the first case. Their directories are pure under the reference mapping, and directory-baseline errors occur where the immediate directory has no labeled examples. Correcting these errors shows that a model can recover an assignment when local supervision is missing. It gives little evidence about conflicts between directory structure and architecture. Bash has mixed directories and therefore presents a different problem. JabRef shows why the distinction matters: adding folder context improves overall accuracy while losing more correct predictions on directory-baseline errors than it gains.
-
-A mapping tool intended to identify architectural exceptions should therefore be evaluated on files that depart from their directory assignment, alongside overall accuracy. A rule-based directory baseline using only the initial labels provides a useful reference, but the counts compare FM with FFM on the baseline's errors and do not show how each model compares with the baseline on those files. Recovering assignments in directories without initial labels is useful, but does not establish that a model can identify files whose module assignment conflicts with their directory.
-
-\parg{Dependency neighborhood processing and aggregation direction.}
-RQ3 distinguishes dependency information encoded in file representations from its additional use during prediction. With undirected aggregation, dependency neighbors raise the median score for GAT, HGT, and the neighbor \mlp{} with every representation, including N2V and \ft{}, so dependency-informed initialization does not make neighbor access redundant. The gains are larger for W2V and \zs{}, which do not encode dependencies, than for N2V and \ft{}, which reinforces the RQ1 finding that dependencies provide signal beyond file content. HGT gains least with every representation and GAT scores highest in most comparisons, although the differences between predictors are small relative to the variation across systems. GAT and HGT differ in their attention formulation and parameterization, so the comparison does not isolate why GAT performs better. These findings concern the evaluated file-level predictors, not the usefulness of dependency types in general or the folder- and member-aware configurations.
-
-The preferred direction of aggregation follows the system and not the predictor or the representation. SH-3D and T.Mates favor directed aggregation, and Lucene, Bash, Chrome, HDC, and HDF favor undirected aggregation, on both metrics. Undirected aggregation also adds the reverse edges, so the comparison does not isolate the direction of propagation from the larger neighborhood. With N2V, directed aggregation lowers the median macro-F1 for all three predictors. The N2V vectors were learned on the undirected dependency graph, which may make directed aggregation less consistent with the neighborhood that each vector encodes, but we did not test this.
-
-\parg{Connectivity and neighbor information.}
-Connectivity describes how much neighboring context is available, while homophily describes whether linked files share a module. Connectivity matters particularly for shallow message passing, whose reach is limited by the number of layers. Sparse neighborhoods restrict the features available for aggregation, whereas Node2Vec can encode more distant context through random walks. Connectivity can therefore constrain additional message passing even when the initial structural representation remains useful.
-
-With N2V and undirected aggregation, no predictor changes significantly on Bash and HDC, the systems with the lowest average degree. This is consistent with limited local context reducing the benefit of neighbor aggregation, but does not establish connectivity as the cause. In contrast, T.Mates and SH-3D have low homophily but among the highest average degrees, and they are the systems with the largest N2V micro-F1 gains from file-level message passing in RQ2 ($+7.2$ and $+10.3$ points) and the systems that favor directed aggregation in RQ3. HDF has similarly low homophily but a much lower degree and no comparable gain. These observations suggest that connectivity is relevant to the context available for shallow message passing, but with ten systems and correlated descriptors we cannot separate connectivity from homophily, system size, or label scarcity, and we did not test this.
-
-\parg{Implications for evaluating mapping models.}
-Evaluation should establish what the input representation already provides, then isolate neighbor access within a fixed predictor. Comparing a graph model with a graph-free MLP changes both the predictor and its access to structure; switching neighbors on and off within the same predictor tests whether that access helps.
-
-Macro and micro F1 scores should be read together, since correctly mapping more files does not necessarily improve performance across modules. The directory analysis adds a further requirement: aggregate scores should be accompanied by evidence about files that depart from directory-based assignments. Together, these comparisons distinguish the contributions of input features, neighbor processing, and neighbor direction, while exposing limitations hidden by aggregate scores. These points concern the ten systems and the compared configurations and do not rank the signals or the predictors in general.
-% ___________ 6_conclusion ________________
+% _________ 5_related_work _____________
 \section{Conclusion\label{sec:conclusion}}
-This study examines which implementation-level signals, including code text, static dependencies, folder organization, and member-level information, carry architectural information and how their representation and use affect code-to-architecture mapping on ten systems. We encode file information using lexical Word2Vec, structural Node2Vec, and contextual UniXcoder in zero-shot (\zs{}) and dependency-guided fine-tuned (\ft{}) variants, and evaluate these representations with MLP- and GNN-based predictors. Representations that encode dependencies, Node2Vec and \ft{}, outperform Word2Vec on most systems when evaluated with the MLP, whereas Word2Vec and \zs{}, which do not, differ from each other in both directions. Dependency-guided fine-tuning significantly improves mapping performance over \zs{} on at least nine of ten systems, although Node2Vec and \ft{} are each significantly stronger on different systems and no representation is best on every system. Folder nodes produce the largest and most consistent gains within HGT variants, but largely recover information already available to a directory rule using the initial labels and do not consistently improve the files on which that rule fails. Member nodes do not give consistent gains, and their effect cannot generally be separated from changes in feature construction and placement.
 
-The controlled experiments distinguish dependency information encoded in file representations from its additional use during prediction by keeping the input representations fixed and switching dependency neighbors off, directed, or undirected for three predictors on all ten systems. With undirected aggregation, dependency neighbors raise the median score for GAT, HGT, and the neighbor \mlp{}, which concatenates own-file features with mean-neighbor features, across all four representations, with larger gains for Word2Vec and \zs{} than for Node2Vec and \ft{}; with directed aggregation, the median macro-F1 is lower only with Node2Vec. These results show that dependency links provide useful information beyond lexical and pretrained code features, while gains with Node2Vec and \ft{} show that neighbor access can also complement representations that already encode dependencies. How much neighborhood information helps depends on the predictor and on the direction of aggregation: HGT gains least with every representation, GAT scores highest in most comparisons, and the better direction depends on the system, with SH-3D and T.Mates favoring directed aggregation and Lucene, Bash, Chrome, HDC, and HDF favoring undirected aggregation. Undirected aggregation also adds the reverse edges, so the experiments do not separate the direction of propagation from the larger neighborhood.
+This study examines how code text, static dependencies, folder organization, and member-level information contribute to code-to-architecture mapping on ten systems. The findings show that mapping performance depends not only on which information is available, but also on how it is represented and used.
 
-Dependencies carry architectural signal beyond file content, and a mapping model can use it in two ways: by encoding it in the file representation, as Node2Vec and dependency-guided fine-tuning do, or by giving the predictor access to direct neighbors. Both help, but the second depends on the predictor and on the direction in which neighbors are aggregated. Evaluating a mapping model should therefore establish what its input already encodes, isolate neighbor access within a fixed predictor, and examine the files that depart from their directory assignment. These findings concern ten systems and the compared configurations, and do not rank the signals or the predictors in general.
+Encoding dependency information in file representations improves mapping beyond the evaluated lexical and pretrained code representations. Node2Vec and dependency-guided fine-tuned UniXcoder outperform Word2Vec on most systems, and fine-tuning improves UniXcoder over its zero-shot counterpart on nearly all systems. However, neither Node2Vec nor fine-tuned UniXcoder is consistently best across systems.
+
+Folder nodes produce the largest and most consistent gains within the HGT variants, but a directory rule using the same labeled files reaches similar accuracy on most systems. These gains do not consistently translate into better predictions on files the rule assigns incorrectly. Member nodes provide no consistent improvement, and their effects cannot generally be separated from changes in feature construction and placement. These structural findings are specific to HGT; whether they persist with other predictors remains untested, particularly given HGT's smaller gains from dependency neighbors in the file-level comparison.
+
+
+Keeping the input representations fixed while enabling and disabling access to dependency-neighborhood information shows that neighbor aggregation can complement representations that already encode dependencies. Undirected aggregation raises the median scores for all three predictors with every representation. GAT achieves the highest median macro-F1, while HGT gains the least. The better aggregation direction varies between systems, although the experiments do not isolate propagation direction from neighborhood size. 
+
+Evaluation should therefore distinguish information already encoded in the representations from the contribution of neighborhood access. The findings support assessing these contributions for the intended mapping task, rather than treating any representation or predictor as generally preferable.
+% _____________ 5_threats ________________
+\section{Threats to Validity\label{sec:threats}}
+
+\parg{Generalizability:} We evaluate ten open-source systems in Java, C, and C++, each with one reference architecture. The findings may not extend to other systems or alternative architectural decompositions. The study is transductive: representation learning and graph processing can use unlabeled test nodes and their edges. It therefore does not establish performance on newly arriving files outside the observed graph or on maintaining a mapping as the system evolves. Other information sources, including change history and dynamic dependencies, are outside the evaluated scope.
+
+\parg{Dependencies and reference mappings:} Dependencies are extracted using static analysis, which may miss or misresolve dependencies. Preprocessing and build configuration can also affect the dependencies available for analysis. Because predictors that use neighbors depend on the extracted graph, such errors can affect their predictions. Models with neighbors enabled and disabled are trained separately. Their comparison therefore measures the effect of training with access to neighbor information, rather than removing neighbors from a fixed trained model.
+
+The analyzed source code may not match the version a published mapping describes. Several benchmark mappings were created years before the source versions used here were obtained, and the files included in a system can depend on its build configuration, so the analyzed file set may differ from the one the mapping covers. In older systems, architectural drift may also weaken the correspondence between a file and its assigned module.
+
+Files can plausibly belong to more than one module, and annotators may assign them differently. Because the initial labeled set is sampled from the same mapping used for evaluation, an incorrect assignment can both mislead the model during training and penalize an architecturally plausible prediction.
+
+\parg{Experimental variation:} We use 100 runs per configuration. These runs reuse the same systems and can include the same files, so they are not independent samples. With this many runs, small differences can reach statistical significance, so we report results per system and include effect sizes to distinguish the magnitude of a difference from its significance. The comparisons were not fixed in advance, so the analyses are exploratory and may favor patterns specific to this benchmark.
+
+The runs use different initial labeled sets, but the contribution of stochastic model training to the observed variation was not assessed separately. Input representations were generated once per system and reused across runs, so variation arising from their generation was not assessed. The seeds governing model initialization and training were not retained, limiting exact reproducibility.
+
+\parg{Interpretation of results:} Performance measures agreement with the reference architecture, not whether a prediction is the only architecturally reasonable assignment. Folder organization may reflect the same decisions used to define that architecture, so strong directory-based predictions do not by themselves demonstrate recovery of architectural intent. The directory-error analysis applies only where the directory baseline makes errors, which excludes C.Img, SH-3D, and T.Mates in most or all splits, and it does not isolate files whose module differs from the majority module of their directory. 
+
+Relationships between performance and structural properties are reported as associations, not causal effects, since the benchmark does not allow these properties to be separated from one another or from system size and label availability.
+% ___________ 7_conclusion ________________
+\section{Conclusion\label{sec:conclusion}}
+
+This study examines how code text, static dependencies, folder organization, and member-level information contribute to code-to-architecture mapping on ten systems. The findings show that mapping performance depends not only on which information is available and how it is represented and used.
+
+Encoding dependency information in file representations improves mapping beyond the evaluated lexical and pretrained code representations. Node2Vec and dependency-guided fine-tuned UniXcoder outperform Word2Vec on most systems, and fine-tuning improves UniXcoder over its zero-shot counterpart on nearly all systems. However, neither Node2Vec nor fine-tuned UniXcoder is consistently best across systems.
+
+Folder nodes produce the largest and most consistent gains within the HGT variants, but a directory rule using the same labeled files reaches similar accuracy on most systems. These gains do not consistently translate into better predictions on files the rule assigns incorrectly. Member nodes provide no consistent improvement, and their effects cannot generally be separated from changes in feature construction and placement. These structural findings are specific to HGT; whether they persist with other predictors remains untested, particularly given HGT's smaller gains from dependency neighbors in the file-level comparison.
+
+Keeping the input representations fixed while enabling and disabling access to dependency-neighborhood information shows that neighbor aggregation can complement representations that already encode dependencies. Undirected aggregation raises the median scores for all three predictors with every representation. GAT achieves the highest median macro-F1, while HGT gains the least. The better aggregation direction varies between systems, although the experiments do not isolate propagation direction from neighborhood size. Evaluation should therefore distinguish information already encoded in the representations from the contribution of neighborhood access. The findings support assessing these contributions for the intended mapping task, rather than treating any representation or predictor as generally preferable.
+
+\parg{Future work.} Future research could separate which aspects of graph context account for the observed differences. Undirected aggregation changed both propagation direction and neighborhood size, and member nodes changed both graph structure and feature placement, so comparing incoming, outgoing, and combined neighborhoods at matched sizes, and adding member nodes while preserving each file's own features, would show which change matters. Another direction is configuration selection on unfamiliar systems. Homophily, which helped interpret the system differences, requires reference module assignments, so selection rules based on properties observable in the dependency graph alone could be developed on some systems and evaluated on others. Finally, a model trained on one version could be evaluated on new and changed files in later versions without retraining, to test whether the learned information supports mapping as systems evolve.

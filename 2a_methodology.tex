@@ -103,20 +103,35 @@ h_i^{(k+1)} = \text{ReLU}\big(W^{(k)} h_i^{(k)} + b^{(k)}\big),
 \end{equation}
 with $h_i^{(0)} = x_i$ the file feature vector and $W^{(k)}, b^{(k)}$ the learnable parameters of layer $k$, and ReLU is the rectified linear unit~\cite{relu}. The input $x_i$ contains the single representation being evaluated.
  
-For RQ3, we incorporate dependency neighborhood information in the MLP by concatenating each file's vector $x_i$ with the mean $\bar{x}_{\mathcal{N}(i)}$ of its direct neighbors' vectors in the dependency graph, giving $[x_i \,\|\, \bar{x}_{\mathcal{N}(i)}]$. We refer to the MLP with this input as the neighbor MLP (\mlp{}).
+For RQ3, we incorporate dependency neighborhood information in the MLP by concatenating each file's vector $x_i$ with the mean $\bar{x}_{\mathcal{N}(i)}$ of its direct neighbors' vectors in the dependency graph, giving $[x_i \,\|\, \bar{x}_{\mathcal{N}(i)}]$. We refer to the MLP with this input as the neighbor MLP (\mlp{}). With neighbors disabled, the input is $x_i$ alone, as in RQ1, so enabling neighbors also doubles the input width of the first layer.
  
 \subsubsection{Heterogeneous Graph Transformer (HGT)\label{sec:hgt_model}}
-Node types have different feature spaces depending on the graph variant and the initialization strategy, so HGT first maps the input vector $x_t$ of each node $t$ into a shared hidden space using a type-specific linear transformation followed by ReLU, which gives its initial representation $h_t^{(0)}$. One HGT layer~\cite{hgt} then updates node representations through multi-head attention over their neighbors.
+Node types have different feature spaces depending on the graph variant and initialization strategy. So HGT first maps the input vector $x_t$ of each node $t$ into a shared hidden space using a type-specific linear transformation followed by ReLU, which gives its initial representation $h_t^{(0)}$. One HGT layer~\cite{hgt} then updates node representations through multi-head attention over their neighbors.
  
 For a target node $t$ and a source node $s$ connected by an edge $e$, the layer computes a message $M(s,e,t)$ and an attention weight $\alpha(s,e,t)$, and aggregates them as:
 \begin{align}
-m_t &= \sum_{s \in \mathcal{N}(t)} \alpha(s,e,t)\, M(s,e,t), \\
-M(s,e,t) &= W^{\mathrm{MSG}}_{\phi(e)}\, V_{\tau(s)}\, h_s, \notag \\
-\alpha(s,e,t) &= \operatorname*{softmax}_{s \in \mathcal{N}(t)} \frac{\big(K_{\tau(s)} h_s\big)^{\top} W^{\mathrm{ATT}}_{\phi(e)}\, \big(Q_{\tau(t)} h_t\big)\, \mu_{\langle \tau(s),\phi(e),\tau(t)\rangle}}{\sqrt{d_h}}. \notag
+m_t &= \sum_{s \in \mathcal{N}(t)}
+       \alpha(s,e,t)\, M(s,e,t), \\
+M(s,e,t) &= W^{\mathrm{MSG}}_{\phi(e)}\,
+            V_{\tau(s)}\, h_s, \notag
 \end{align}
+\begingroup
+\fontsize{9.5pt}{12pt}\selectfont
+\begin{equation*}
+\alpha(s,e,t)
+= \operatorname*{softmax}_{s \in \mathcal{N}(t)}
+\frac{
+  \big(K_{\tau(s)} h_s\big)^{\top}
+  W^{\mathrm{ATT}}_{\phi(e)}\,
+  \big(Q_{\tau(t)} h_t\big)\,
+  \mu_{\langle \tau(s),\phi(e),\tau(t)\rangle}
+}{\sqrt{d_h}}.
+\end{equation*}
+\endgroup
+
 \noindent where $\tau(\cdot)$ is the node type, $\phi(e)$ is the edge type, $V$, $K$, and $Q$ are type-specific linear transformations, $W^{\mathrm{MSG}}$ and $W^{\mathrm{ATT}}$ are edge-type-specific matrices, $\mu$ is a learned prior for each meta-relation, $d_h$ is the head dimension, and attention-head indices are omitted for brevity. These parameters allow a \emph{contains} edge from a folder and a \emph{depends\_on} edge from a dependent file to receive different attention weights.
- 
-Finally, the aggregated message is combined with the node's projected input $h_t^{(0)}$ through a residual connection~\cite{residual_connection} followed by layer normalization:
+
+After combining the attention-head outputs, we denote the resulting message by $m_t$. In our implementation, this message is combined with the node's projected input $h_t^{(0)}$ through a residual connection~\cite{residual_connection} followed by layer normalization:
 \begin{equation}
 h_t^{(1)} = \mathrm{LayerNorm}\left(m_t + h_t^{(0)}\right).
 \end{equation}

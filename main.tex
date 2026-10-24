@@ -113,13 +113,16 @@
 
 % ================= PAPER METADATA =================
 \newcommand{\paperabstract}{%
-Assigning source files to reference architecture modules supports conformance checking and system understanding. Identifiers, code content, static dependencies, and directory organization inform this mapping, but their usefulness depends on how they are represented and processed. We investigate the contribution of file representations, folder and member information, and dependency neighbors, defined as files connected by static dependencies. We study ten Java, C, and C++ systems with limited labels, comparing Word2Vec, Node2Vec, and UniXcoder representations with feature-only and graph-based predictors. We vary file, member, and folder graph configurations and compare predictors with and without dependency neighbors, aggregated along the dependency direction or in both directions. Representations that encode dependencies provide strong feature-only baselines, while folder nodes yield the largest and most consistent gains among graph configurations. However, these gains largely reflect information available through a directory rule and do not consistently improve predictions for files that depart from it. With file representations held fixed, dependency neighbors raise the median score of a multilayer perceptron (MLP) receiving each file's representation and the mean representation of its neighbors, of a Graph Attention Network (GAT), and of a Heterogeneous Graph Transformer (HGT) when aggregated in both directions, with the smallest gain for HGT. Aggregating only along the dependency direction lowers median macro-F1 with Node2Vec, and the better direction depends on the system and not on the predictor or the representation. Useful dependency information therefore does not by itself determine whether neighbor aggregation helps. Evaluations should distinguish information already encoded in file representations from the contribution of neighbor access and its direction, and assess directory-departing files separately from aggregate performance.
+Assigning source files to reference architecture modules supports conformance checking and system understanding. Code text, static dependencies, folder organization, and member-level information can inform this mapping, but their contributions depend on how they are represented and used. We investigate these contributions on ten Java, C, and C++ systems with limited labeled data. We compare lexical, structural, and contextual file representations using a multilayer perceptron (MLP), a Graph Attention Network (GAT), and a Heterogeneous Graph Transformer (HGT). With HGT, we vary graph granularity from source files alone to files with their members and enclosing folders. We also control access to dependency-neighbor information within fixed predictors and compare aggregation in one or both directions.
+
+Representations that encode dependencies provide strong baselines when evaluated with the MLP. Additional neighbor information can improve mapping, but its benefit depends on the predictor and aggregation direction; under aggregation in both directions, the GAT achieves the highest median macro-F1 with every representation. Within HGT variants, folder nodes produce the largest and most consistent gains, while member nodes provide no consistent improvement. However, a directory rule using the same labeled files reaches similar accuracy on most systems, and folder gains do not consistently extend to files the rule assigns incorrectly. Evaluation should therefore distinguish the contribution of additional graph context from information already available in file representations and directory organization.
 }
 \newcommand{\paperkeywords}{%
+Code-to-Architecture Mapping \and
 Software Architecture \and
-Heterogeneous Graph Neural Networks \and
-Graph Transformers \and
-Representation Learning%
+Graph Neural Networks \and
+Heterogeneous Graphs \and
+Representation Learning \and
 }
 
 % ================= DOCUMENT =================
@@ -161,22 +164,14 @@ Linnaeus University, Växjö, Sweden \\
 \end{abstract}
 
 \input{1a_introduction}
-
-\input{1c_background}
-
+\input{1b_background}
 \input{2a_methodology}
-
 \input{2b_experiemnts}
-
 \input{3a_results}
-
 \input{3b_discussion}
-
-\input{1b_related_work}
-
-\input{5_threats}
-
-\input{6_conclusion}
+\input{5_related_work}
+\input{6_threats}
+\input{7_conclusion}
 
 \footnotesize
 \bibliographystyle{spbasic}

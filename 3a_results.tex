@@ -1,5 +1,5 @@
 \section{Results\label{sec:results}}
-This section reports the results for code-to-architecture mapping across ten subject systems. RQ1 compares lexical, structural, and contextual file representations using an MLP. RQ2 examines how mapping performance changes when Word2Vec, Node2Vec, and \ft{} initialize HGT with file, member, and folder context, and analyzes errors relative to directory-based predictions. RQ3 uses controlled experiments to examine how the predictor and the direction of dependency neighbors affect the benefit of neighbors. 
+This section reports the results for code-to-architecture mapping across ten subject systems. RQ1 compares lexical, structural, and contextual file representations using an MLP. RQ2 examines how mapping performance changes when Word2Vec, Node2Vec, and \ft{} initialize HGT with file, member, and folder context, and analyzes errors relative to directory-based predictions. RQ3 uses controlled experiments to examine how using dependency neighbors changes mapping performance, and how the predictor and aggregation direction affect this change.
 
 For RQ1 and RQ2, we report median macro- and micro-F1 scores over the 100 runs per system and configuration, and differences between these medians in F1 percentage points, with Cliff's $\delta$ alongside the significance test. For RQ3, we report the median of the paired differences between conditions over the 100 splits. Summary tables give the median of these per-system values across the ten systems. F1 is computed only on the held-out test files of each split.
 % ========================================
@@ -29,7 +29,7 @@ Representations that encode dependencies, either directly through random walks (
 % ========================================
 % ----------------- RQ2 ------------------
 % ========================================
-\subsection{Mapping Performance as File, Member, and Folder Context Are Added (RQ2) \label{sec:rq2}}
+\subsection{Message Passing over Dependencies, Members, and Folders (RQ2) \label{sec:rq2}}
 RQ2 examines how mapping performance changes when graph structure is added to each representation. Figure~\ref{fig:rq2_lineplot} reports median macro-F1 and micro-F1 for the MLP and HGT under F, FF, FM, and FFM. We use Word2Vec, Node2Vec, and the fine-tuned variant \ft{}, which improves over \zs{} on nearly all systems (RQ1). F adds message passing over file dependencies, FF adds folder nodes, FM adds member nodes, and FFM adds both.
 
 Table~\ref{tab:rq2_steps} summarizes five steps: MLP to F, adding members (F to FM, FF to FFM), and adding folders (F to FF, FM to FFM). For each system, $\Delta$ is the difference between the two configuration medians over 100 runs. The table reports the median of these ten system-level differences, the number of systems with a positive difference, and the number of systems with a significant gain or loss.
@@ -93,7 +93,7 @@ The effect on mapping performance depends on what is added and on the representa
 % ========================================
 % ----------------- RQ3 ------------------
 % ========================================
-\subsection{Comparing Predictors and Dependency Direction (RQ3)\label{sec:rq3}}
+\subsection{Dependency Neighbors, Predictors, and Aggregation Direction (RQ3)\label{sec:rq3}}
 
 RQ2 shows that the effect of graph context depends on the representation, configuration, and system. However, its comparison of the MLP with file-level HGT changes both the predictor and the availability of dependency messages. RQ3 therefore compares each predictor with dependency neighbors disabled and enabled, using HGT, GAT, and a neighbor MLP (\mlp{}). It also compares directed and undirected aggregation to examine whether the benefit depends on how dependency neighbors are aggregated. We evaluate all three predictors with all four input representations.
 
