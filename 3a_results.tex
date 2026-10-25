@@ -40,8 +40,8 @@ Table~\ref{tab:rq2_steps} summarizes five steps: MLP to F, adding members (F to 
 %_______________
 \begin{figure*}[htb]
 \centering
-\includegraphics[width=0.98\textwidth]{Images/RQ2_lineplot_f1_macro.pdf}
-\includegraphics[width=0.98\textwidth]{Images/RQ2_lineplot_f1_micro.pdf}
+\includegraphics[width=0.97\textwidth]{Images/RQ2_lineplot_f1_macro.pdf}
+\includegraphics[width=0.97\textwidth]{Images/RQ2_lineplot_f1_micro.pdf}
 \caption{Median macro-F1 (top) and micro-F1 (bottom) for each representation, per system, across the MLP and HGT with increasing graph structure (F, FF, FM, FFM). Shaded areas denote interquartile ranges across the 100 runs. \label{fig:rq2_lineplot}}
 \end{figure*}
 \input{generated/rq2_stats}
@@ -93,14 +93,14 @@ Differences are paired changes in F1 points, enabled minus disabled; positive va
 This comparison differs from RQ2, where file-level message passing (F) is compared with the MLP, which changes the predictor together with the available structure. Here the predictor is fixed, and dependency neighbors are enabled and disabled, so a gain of F over the MLP does not imply that HGT benefits from dependency neighbors. With Node2Vec, for example, F raises the median macro-F1 over the MLP, whereas HGT with directed neighbors is lower than HGT without neighbors.
 
 \input{generated/rq3_systems_body}
+\parg{Does the direction of neighbor aggregation matter?} The preferred direction depends on the system. Undirected aggregation gives the higher median in almost every cell of Table~\ref{tab:rq3_reps}. However, several systems favor directed aggregation. Figure~\ref{fig:rq3_direction} shows gains from undirected aggregation on five to eight systems per combination of predictor and input representation, with significant differences in both directions.
 
-\parg{Does the direction of neighbor aggregation matter?} Undirected aggregation gives the higher median in almost every cell of Table~\ref{tab:rq3_reps}, which raises the question of whether it is better on every system. Figure~\ref{fig:rq3_direction} compares the two directions per system. It is not: the change from directed to undirected aggregation is positive on only five to eight systems per cell, and significant changes occur in both directions. On macro-F1, SH-3D, T.Mates, and JabRef score higher with directed aggregation in all 12 cells, and C.Img in eight. Lucene, Bash, Chrome, and HDC score higher with undirected aggregation in all 12 cells, and A.UML and HDF in 11. The differences reach 14.6 points for undirected aggregation (Bash, Word2Vec, \mlp{}) and 8.7 points for directed aggregation (T.Mates, Word2Vec, \mlp{}). Micro-F1 gives the same pattern for seven systems, whereas JabRef, C.Img, and A.UML are mixed. Undirected neighbors also add the reverse edges, so these results do not separate the direction of propagation from the larger neighborhood.
-
-\begin{figure}[ht]
+\begin{figure}[h]
 \centering
 \includegraphics[width=1\columnwidth]{Images/rq3_direction_f1_macro.pdf}
-\caption{Change in macro-F1, in F1 points, from directed to undirected aggregation (undirected $-$ directed) for each predictor and input representation; negative values mean directed aggregation scored higher. Each point is the median over 100 paired splits; hollow markers are not significant.\label{fig:rq3_direction}}
+\caption{\fontsize{9.2}{12}\selectfont Macro-F1 differences (undirected $-$ directed), in F1 points, by predictor and input representation. Each point shows median paired differences over 100 splits; negative values favor directed aggregation. Hollow markers indicate non-significant differences.\label{fig:rq3_direction}}
 \end{figure}
+On macro-F1, SH-3D, T.Mates, and JabRef score higher with directed aggregation in all 12 combinations, and C.Img in eight. Lucene, Bash, Chrome, and HDC score higher with undirected aggregation in all 12 combinations, and A.UML and HDF in 11. The largest differences are 14.6 points in favor of undirected aggregation (Bash, Word2Vec, \mlp{}) and 8.7 points in favor of directed aggregation (T.Mates, Word2Vec, \mlp{}). Micro-F1 shows the same directional pattern for seven systems, while JabRef, C.Img, and A.UML show mixed results. Adding reverse edges also expands the neighborhood, so this comparison does not isolate propagation direction from neighborhood size.
 
 \parg{Which predictor scores highest?} Figure~\ref{fig:rq3_agg} pools the ten systems with undirected neighbors: each point is the median of one system and the boxes show the spread across systems. GAT has the highest median macro-F1 with every representation and the highest median micro-F1 with every representation except Node2Vec, where HGT is marginally higher. GAT also scores highest most often: in each split we count which of the four predictors scores highest, and GAT has the largest share of wins, averaged over systems, with every representation and on both metrics. All three predictors with neighborhood aggregation exceed the MLP without neighbors in every median comparison. As without neighbors, \ft{} has the highest median macro-F1 across systems for every predictor, with GAT and \ft{} giving the highest scores overall.
 
