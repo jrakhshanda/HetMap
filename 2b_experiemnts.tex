@@ -1,4 +1,5 @@
-\section{Experiments}
+\section{Experimental Setup}
+
 This section describes the benchmark systems, the experimental configuration, the directory-based reference predictor, and the evaluation procedure used to answer the three research questions.
 
 % ____________________ Datasets __________________________
@@ -7,7 +8,7 @@ This section describes the benchmark systems, the experimental configuration, th
 We evaluate the models on ten open-source systems with published ground-truth (GT) mappings, which have been used in prior work on architecture recovery and C2A mapping~\cite{gaer,olsson2022automatically}. They differ in programming language, domain, size, and architectural granularity. We use published mappings because reliable C2A mappings require substantial manual effort and expert validation~\cite{garcia2013}, and because they allow comparison with previous studies.
 
 Table~\ref{tab:datasets} summarizes the system and graph properties. File-level dependency homophily $\mathcal{H}$ is the proportion of unique directed file pairs connected by a static dependency whose source and target files fall within the same GT module, from 0 (every dependency crosses a module boundary) to 1 (every dependency stays within a module). The mean degree $\langle k \rangle = 2|E|/|\text{Files}|$ counts each of the $|E|$ directed file-level dependency edges at both of its files.
- 
+
 \begin{table}[h]
 \centering\small
 \caption{Subject systems and their file-level dependency graph properties. \(M\): number of modules in the GT; \(|E|\): number of directed file-level static dependencies; \(\mathcal{H}\): dependency homophily; \(\langle k \rangle\): mean degree.\label{tab:datasets}}
@@ -42,21 +43,23 @@ Table~\ref{tab:datasets} summarizes the system and graph properties. File-level 
 \end{table}
 
 The Java systems come from the benchmark of Olsson et al.~\cite{olsson2022automatically}. JabRef and TeamMates (T.Mates) were studied at the SAEroCon workshop in 2016 and 2017, where system experts provided the architectures and mappings\footnote{\label{fnsaerocon}\href{https://github.com/sebastianherold/SAEroConRepo}{https://github.com/sebastianherold/SAEroConRepo}}. Lucene was studied by Lenhard et al.~\cite{lenhard2019exploring}, and the Commons Imaging (C.Img) mapping was contributed as a test case for s4rdm3x~\cite{olsson2021s4rdm3x} \footnote{\label{fns4rdm3x} Java labels are available at: \href{https://github.com/h0bb3/s4rdm3x}{https://github.com/h0bb3/s4rdm3x}}.
- 
+
 For Bash, we use the mapping curated by Garcia et al.~\cite{garcia2013}, who recovered an initial decomposition from documentation and source code and refined it with system experts through a certification process. The same work provides the Chromium mapping, developed with developers over approximately two years~\cite{deps_impact}.
- 
+
 The HDF and HDC mappings were developed with industry partners and are part of the SARIF benchmark of Zhang et al.~\cite{sarif}, available in its replication package\footnote{\label{fnsarif}\href{https://github.com/anonymous2f4a9d/SARIF_FSE23/tree/main}{https://github.com/anonymous2f4a9d/SARIF\_FSE23}}.
+
 % _______________ Expeerimental Config ________________
 \subsection{Experimental Configurations}
+
 We repeat each experiment 100 times, each with a different initial labeled set. In each run, we randomly sample 5\% of the file nodes, with a minimum of 30 and a maximum of 200 files, and add one file from each GT module not represented in the sample. We use the same 100 initial labeled sets across all experiments and configurations, which allows paired comparisons. This procedure imposes a bounded labeling budget rather than a constant labeled proportion: before the module-coverage additions, the random sample covers approximately 9--20\% of the files in the five systems subject to the floor (C.Img, SH-3D, Bash, HDF, and HDC) and approximately 1\% in Chromium, the only system subject to the cap.
 
 \parg{Input representations.}
-For each system, Word2Vec embeddings§ are 128-dimensional vectors trained for 20 epochs with a context window of five on the file names and identifiers.
+For each system, Word2Vec embeddings are 128-dimensional vectors trained for 20 epochs with a context window of five on the file names and identifiers.
 
 Node2Vec learns 128-dimensional vectors from uniform random walks ($p=q=1$) on the undirected file-level dependency graph, with walk length 30, 200 walks per file, window 15, five skip-gram epochs, and five negative samples. Chromium uses 100 walks per file and one negative sample.
- 
+
 For \ft{}, UniXcoder is fine-tuned separately for each system with an InfoNCE temperature of $0.05$, AdamW with a learning rate of $2\times10^{-5}$, a batch size of eight, and two epochs with a fixed seed. Only the upper four of the twelve encoder layers are updated, while the token embeddings and the lower eight layers stay frozen. Both UniXcoder variants encode file inputs with a 512-token limit and member inputs in overlapping 256-token windows with a stride of 128, mean-pooled before normalization, producing 768-dimensional features.
- 
+
 All input representations are generated once per system and reused in every run and experiment.
 
 \parg{Training models.}
@@ -65,22 +68,22 @@ All models are trained with Adam at a learning rate of $0.001$ for 200 epochs. T
 \parg{Controlled comparisons.}
 RQ1 trains the MLP on each of the four representations, which isolates the information in the file representation because the MLP uses no graph structure.
 
-RQ2 trains HGT on all graph variants (Figure~\ref{fig:graph_variants_overview}) with Word2Vec, Node2Vec, and \ft{} features, using directed dependency edges. We additionally train all four HGT variants with two layers to test whether one layer limits what a file receives from its neighbors. We also train \textbf{FD}, an HGT model on graph F whose \ft{} file vector is extended with a binary folder-path vector, including ancestor folders. This vector uses the same tokenizer and vocabulary as the folder-node features (Sec.\ref{sec:node_features}), with one dimension per distinct folder token in the system. FD provides folder information without folder nodes.
+RQ2 trains HGT on all graph variants (Figure~\ref{fig:graph_variants_overview}) with Word2Vec, Node2Vec, and \ft{} features, using directed dependency edges. We additionally train all four HGT variants with two layers to test whether one layer limits what a file receives from its neighbors. We also train \textbf{FD}, an HGT model on graph F whose \ft{} file vector is extended with a binary folder-path vector, including ancestor folders. This vector uses the same tokenizer and vocabulary as the folder-node features (Section~\ref{sec:node_features}), with one dimension per distinct folder token in the system. FD provides folder information without folder nodes.
 
-RQ3 consists of controlled comparisons on the file graph, with all four representations. Within each predictor (MLP, GAT, and HGT), we vary only whether dependency neighbors are available and in which direction information flows. We keep the file representations, initial labeled sets, and training settings fixed and compare three settings. With neighbors \emph{disabled}, each file uses only its own representation. With \emph{directed} aggregation, a dependency edge from file $u$ to file $v$, where $u$ depends on $v$, carries information from $u$ to $v$. Each file therefore receives information from the files that depend on it. With \emph{undirected} aggregation, we also add the reverse edge, allowing each file to receive information from files it depends on. For the MLP, these settings determine which files contribute to the neighbor vector; for GAT and HGT, they determine which files send messages.
+RQ3 consists of controlled comparisons on the file graph, with all four representations. For each predictor (MLP, GAT, and HGT), we compare settings with dependency neighbors disabled and enabled, and with different aggregation directions. For the neighbor MLP, enabling neighbors also increases the input width and parameter count. We keep the file representations, initial labeled sets, and training settings fixed and compare three settings. With neighbors \emph{disabled}, each file uses only its own representation. With \emph{directed} aggregation, a dependency edge from file $u$ to file $v$, where $u$ depends on $v$, carries information from $u$ to $v$. Each file therefore receives information from the files that depend on it. With \emph{undirected} aggregation, we also add the reverse edge, allowing each file to receive information from files it depends on. For the MLP, these settings determine which files contribute to the neighbor vector; for GAT and HGT, they determine which files send messages.
 
 The MLP with neighbors disabled is the RQ1 classifier, and HGT with directed neighbors on the file graph is the F configuration of RQ2, so these runs are shared. In total, the experiments comprise 58,000 runs.
 
 % _______________ Directory Reference Predictor ________________
 \subsubsection{Directory Hierarchy Baseline\label{sec:dir_predictor}}
 To assess how much folder-based configurations exploit files in the same directory sharing a module, we use a rule-based predictor based on the directory hierarchy and the initial labeled files. For each unlabeled file, it assigns the most common module among labeled files in the same directory. If none are present, it searches the directory subtree and then the subtrees of its parent directories until it finds labeled files. Ties are resolved by the module's frequency in the complete initial labeled set and then alphabetically. If no labeled files are found, the predictor assigns the most common module in the complete initial labeled set. It uses the directory hierarchy, but not directory-name text, source code, embeddings, dependencies, or test labels.
- 
-We apply the predictor to all 100 initial labeled sets and compare it with HGT using \ft{} features on the directed FM and FFM graphs and with FD. For each system, we report the accuracy of the predictor, FM, FFM, and FD, which equals micro-F1 because each file has exactly one module label. For the files that the predictor assigns incorrectly, we also report the accuracy of each model on those files, and we count, per file and split, the correct FM predictions that FFM loses and the incorrect FM predictions that it corrects.
+
+We apply the predictor to all 100 initial labeled sets and compare it with HGT using \ft{} features on the directed FM and FFM graphs and with FD. For each system, we report the accuracy of the predictor, FM, FFM, and FD, which equals micro-F1 because each file has exactly one module label. For the files that the predictor assigns incorrectly, we also report the accuracy of each compared model on those files.
 
 % _________ Evaluation _________________
 \subsection{Performance Evaluation}
 The benchmark systems have imbalanced module sizes, so overall accuracy can hide poor performance on smaller modules. We therefore report both macro-F1 and micro-F1. F1 is the harmonic mean of precision and recall, which measure the correctness of predicted assignments and the coverage of true assignments, respectively. Macro-F1 averages the F1 scores of individual modules, giving each module equal weight regardless of size. Micro-F1 aggregates predictions across modules, giving each file equal weight. Reporting both captures performance across modules as well as overall file-level performance.
 
-Because compared configurations use the same initial labeled sets, we pair runs by split. We use the two-sided Wilcoxon signed-rank test~\cite{wilcoxon}, a non-parametric test, to compare configurations separately for each system and metric without assuming normally distributed score differences. We apply Holm's correction across the ten systems for each metric and pair of compared configurations, using a significance level of $\alpha=0.05$. 
+Because compared configurations use the same initial labeled sets, we pair runs by split. We use the two-sided Wilcoxon signed-rank test~\cite{wilcoxon}, a non-parametric test, to compare configurations separately for each system and metric without assuming normally distributed score differences. We apply Holm's correction across the ten systems for each metric and pair of compared configurations, using a significance level of $\alpha=0.05$.
 
 To quantify the magnitude of the differences, we also compute Cliff's $\delta$~\cite{cliff} from the two sets of 100 scores. We classify its magnitude as negligible (N, $|\delta|<0.147$), small (S, $0.147\leq|\delta|<0.33$), medium (M, $0.33\leq|\delta|<0.474$), or large (L, $|\delta|\geq0.474$)~\cite{romano2006}.

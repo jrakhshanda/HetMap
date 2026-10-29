@@ -1,24 +1,28 @@
-\section{Methodology\label{sec:method}}
+\section{Representations and Mapping Models\label{sec:method}}
 
 This section presents the methodology for studying how architectural signals and graph design choices affect C2A mapping. We first formulate the mapping task and then describe the graphs and the structural, lexical, and contextual features used to initialize their nodes. We then present the MLP, HGT, and GAT predictors.
- 
+
 Each research question varies one of these components and holds the others fixed. RQ1 varies the file representation, using the MLP. RQ2 varies the graph variant for each representation, using HGT because it handles the node and relation types of the heterogeneous variants. RQ3 varies the predictor, comparing the neighbor MLP with GAT and HGT, and the dependency neighbors they receive.
 
 \subsection{Problem Formulation\label{sec:problem}}
-We formulate the mapping task as node classification over a software graph $G=(V, E,\mathcal{A},\mathcal{R})$, where $\mathcal{A}$ and $\mathcal{R}$ denote the sets of node and relation types. Let $V_f \subseteq V$ be the set of file nodes, which are the targets of the mapping task. A small subset $L \subset V_f$ is labeled with known architectural module assignments $Y_L$, and the remaining file nodes $U = V_f \setminus L$ are unlabeled. The task is to learn a model:
+
+We formulate the mapping task as node classification over a software graph $G=(V, E,\mathcal{A},\mathcal{R})$, where $V$ and $E$ are the sets of artifact nodes and relations between them, respectively, and $\mathcal{A}$ and $\mathcal{R}$ denote the sets of node and relation types. The mappings $\tau: V \rightarrow \mathcal{A}$ and $\phi: E \rightarrow \mathcal{R}$ assign node and relation types. Let $V_f \subseteq V$ be the set of file nodes, which are the targets of the mapping task. A small subset $L \subset V_f$ is labeled with known architectural module assignments $Y_L$, and the remaining file nodes $U = V_f \setminus L$ are unlabeled. The task is to learn a model:
+
 \begin{equation}
     f_{\theta}: (G, L, Y_L) \rightarrow \hat{Y}_U,
 \end{equation}
+
 where $\theta$ denotes the learnable parameters. The model is trained on the labeled files only, but all nodes of $G$, labeled and unlabeled, are part of the graph during training.
- 
+
 Each model computes a $d$-dimensional embedding $z_i$ for every file $i \in V_f$, and the architectural module of a file is predicted from this embedding.
 
 % _______ Graph Construction ___________
 \subsection{Graph Construction\label{sec:het_graph}\label{sec:graph_variants}}
+
 We represent the software system as a graph of software artifacts connected by folder organization, member containment, and static dependencies.
 
 To study the individual and combined contributions of folder and member information, we construct four graph variants that differ in the node types they contain. They are named after these types: F (file nodes only), FF (folder and file nodes), FM (file and member nodes), and FFM (folder, file, and member nodes). All variants retain the dependency relation. F is homogeneous, with one node type and one relation type, and the other three variants are heterogeneous. Figure~\ref{fig:graph_variants_overview} provides a visual overview.
- 
+
 \begin{figure}[h]
 \centering
 \resizebox{0.96\linewidth}{!}{\input{Images/graph_variants.tex}}
@@ -26,14 +30,13 @@ To study the individual and combined contributions of folder and member informat
 \label{fig:graph_variants_overview}
 \end{figure}
 
-\subsubsection{Nodes and Relations}
 The complete graph (FFM) has three node types. File nodes represent source files and are the targets of C2A mapping. Because logical components are often implemented through namespaces or directory structures that group source code providing a particular functionality~\cite{fundamentals_sa, garcia2013}, folder nodes represent directory levels of the project, with one node per level. Each file has one summarized member node covering the methods, fields, constructors, and variables of that file. This retains member-level information while avoiding the large and sparse graphs produced by representing individual members.
 
 Four relations connect these nodes, as listed in Table~\ref{tab:relation_types}. Three are structural and encode organization and containment, and the fourth encodes static dependencies. Folder nodes are connected through \emph{parent\_of} edges, forming chains such as \texttt{app} $\rightarrow$ \texttt{app/ui} $\rightarrow$ \texttt{app/ui/views}, and \emph{contains} edges link each folder to its files. A \emph{belongs\_to} edge links each member node to its enclosing file.
 
 Messages along structural relations flow toward the file. Folder information passes down the hierarchy through \emph{parent\_of} and \emph{contains} edges, and member information passes up to the file through \emph{belongs\_to} edges. No reverse edges are added, so folder and member nodes are not updated from files through structural relations.
 
-The fourth relation, \emph{depends\_on}, encodes static dependencies, which provide direct evidence of how source files interact~\cite{negar, deps_impact}. Dependencies were extracted with the Depends tool~\cite{depends}, which analyzes the syntactic structure of the projects and identifies entities together with several categories of static relations. We merge all dependency types into a single relation, drop duplicate edges, and remove edges whose endpoints belong to the same file.
+\emph{depends\_on} encodes static dependencies, which provide direct evidence of how source files interact~\cite{negar, deps_impact}. These dependencies were extracted with the Depends tool~\cite{depends}, which analyzes the syntactic structure of the projects and identifies entities together with several categories of static relations. We merge all dependency types into a single relation, drop duplicate edges, and remove edges whose endpoints belong to the same file.
 
 Dependency endpoints depend on the graph variant. In FM and FFM, dependencies connect either two files or two member nodes. Dependencies between a file and a member are resolved between their corresponding files. In F and FF, all member endpoints are replaced by their enclosing files, so all dependencies connect file nodes.
 
@@ -67,50 +70,65 @@ Relation & Source $\to$ target & Description \\
 \bottomrule
 \end{tabularx}
 \end{table}
+
 % _________ Node Feature Initialization ______________
 \subsection{Node Feature Initialization \label{sec:node_features}}
+
 Folder nodes are initialized in the same way in every setting. File and member nodes are initialized with one of the representations compared in RQ1: lexical embeddings from Word2Vec, structural embeddings from Node2Vec, or contextual embeddings from UniXcoder, used zero-shot or fine-tuned with dependencies.
 
-Member information enters the model differently across representations. Word2Vec includes member identifiers in file vectors when member nodes are absent and places them in member nodes otherwise. UniXcoder provides member text only through member nodes, while Node2Vec assigns each member node its file's vector. Adding member nodes thus changes the placement or availability of information as well as the graph structure, so comparisons across graph variants are interpreted separately for each representation.
-
 \subsubsection{Folder Node Features}
+
 Folder nodes use a binary bag-of-words representation of the folder tokens along their paths, after removing common project-root tokens. For example, \texttt{app/ui/views} is represented by \texttt{app}, \texttt{ui}, and \texttt{views}. Including the tokens of its ancestors preserves each folder's hierarchical context.
 
 \subsubsection{Word2Vec (W2V): Lexical Features\label{sec:node_w2v}}
+
 Source code identifiers encode domain concepts and implementation roles, making them useful signals for C2A mapping~\cite{sarif}. Following Jabeen et al.~\citep{gaer}, we extract tokens from file names and from the identifiers of members, namely methods, fields, constructors, and variables. We split camelCase, PascalCase, and snake\_case identifiers, convert tokens to lowercase, and remove stopwords and non-alphabetic tokens. Each node vector is the mean of the skip-gram Word2Vec embeddings of its associated tokens~\cite{word2vec}.
 
 In FM and FFM, file nodes use file-name tokens, while member nodes use member identifiers. In F and FF, member identifiers are included in the file vector instead, and the MLP uses this same file vector. Member identifiers therefore remain available in every variant.
 
 \subsubsection{Node2Vec (N2V): Structural Features \label{sec:node_n2v}}
+
 Chen et al.~\citep{negar} observe that files in the same architectural module can occupy a dense local dependency region without being directly connected. They use random-walk embeddings to capture this longer-range structure for architecture recovery. In our earlier study of dependency-only recovery, which follows their setup, Node2Vec was among the best-performing learned representations~\cite{structsar}. Therefore, we use Node2Vec~\cite{node2vec} embeddings computed with uniform random walks on the undirected file-level dependency graph as a structural initialization. These embeddings encode dependency structure without using identifiers or folder location.
 
 In FM and FFM, each summarized member node receives the Node2Vec embedding of its corresponding file.
- 
+
 \subsubsection{UniXcoder: Contextual Features \label{sec:unixcoder}}
+
 For contextual initialization, we use UniXcoder~\cite{unixcoder}, a pretrained code transformer. We parse each source file with Tree-sitter~\cite{tree_sitter} using the corresponding Java, C, or C++ grammar. The syntax tree determines which source fragments are passed to the encoder, but is not itself an input to the model. Extraction produces two views. The file-level view contains type declarations, fields or global variables, and constructor signatures with short body excerpts where applicable. The member-level view contains methods or functions. Each view produces one vector per file. Member-level text is split into overlapping chunks whose embeddings are mean-pooled.
- 
-The zero-shot variant (\zs{}) uses the pretrained weights. The dependency-guided variant (\ft{}) is fine-tuned separately for each system with a contrastive objective~\cite{infonce} using dependency-based positive pairs. Fine-tuning uses only the file-level views, and module labels do not enter the loss. The fine-tuned encoder then encodes both views and produces one vector per view for each file, so member-level text is encoded but is not part of the fine-tuning objective.
- 
+
+The zero-shot variant (\zs{}) uses the pretrained weights. UniXcoder's pretraining objectives do not target architectural grouping: files with similar code can belong to different modules. We therefore also evaluate a dependency-guided variant (\ft{}), fine-tuned separately for each system using an InfoNCE objective~\cite{infonce}. This objective brings dependency-based positive pairs closer than other in-batch examples treated as negatives. However, files that are close in the dependency graph need not belong to the same architectural module. During fine-tuning, we compute this loss using only the file-level views, without module labels. We then use the fine-tuned encoder to produce representations for both file- and member-level views.
+
 Positive pairs are drawn from the two-hop neighborhood to capture longer-range dependency structure~\cite{structsar}, with dependencies treated as undirected. For each anchor file, two positives are sampled at random from the eight two-hop candidates that share the most one-hop neighbors with it. Files without a two-hop candidate fall back to a direct neighbor. Other files in the batch serve as negatives, except directly connected files, which are masked unless selected as the positive pair.
+
+Member information enters the model differently across representations. Word2Vec includes member identifiers in file vectors when member nodes are absent and places them in member nodes otherwise. UniXcoder provides member text only through member nodes, while Node2Vec assigns each member node its file's vector. Adding member nodes thus changes the placement or availability of information as well as the graph structure, so comparisons across graph variants are interpreted separately for each representation.
+
 % __________ Model ________________
 \subsection{Mapping Models\label{sec:mapping_models}}
-We compare models that use file features alone with models that incorporate graph structure. RQ1 uses the MLP, RQ2 uses HGT, and RQ3 compares the neighbor MLP, GAT, and HGT. All models use the same classification head to predict architectural modules. Throughout, $\mathcal{N}(\cdot)$ denotes the neighborhood of a node.
+
+We compare models that use file features alone with models that incorporate graph structure. All models use the same classification head to predict architectural modules. Throughout, $\mathcal{N}(\cdot)$ denotes the neighborhood of a node.
 
 \subsubsection{Multilayer Perceptron (MLP)\label{sec:mlp}}
+
 The MLP predicts module logits directly from a file-level input vector. Each hidden layer computes:
+
 \begin{equation}
 h_i^{(k+1)} = \text{ReLU}\big(W^{(k)} h_i^{(k)} + b^{(k)}\big),
 \end{equation}
+
 with $h_i^{(0)} = x_i$ the file feature vector and $W^{(k)}, b^{(k)}$ the learnable parameters of layer $k$, and ReLU is the rectified linear unit~\cite{relu}. The input $x_i$ contains the single representation being evaluated.
- 
+
 For RQ3, we incorporate dependency neighborhood information in the MLP by concatenating each file's vector $x_i$ with the mean $\bar{x}_{\mathcal{N}(i)}$ of its direct neighbors' vectors in the dependency graph, giving $[x_i \,\|\, \bar{x}_{\mathcal{N}(i)}]$. We refer to the MLP with this input as the neighbor MLP (\mlp{}). With neighbors disabled, the input is $x_i$ alone, as in RQ1, so enabling neighbors also doubles the input width of the first layer.
- 
+
 \subsubsection{Heterogeneous Graph Transformer (HGT)\label{sec:hgt_model}}
-Node types have different feature spaces depending on the graph variant and initialization strategy. So HGT first maps the input vector $x_t$ of each node $t$ into a shared hidden space using a type-specific linear transformation followed by ReLU, which gives its initial representation $h_t^{(0)}$. One HGT layer~\cite{hgt} then updates node representations through multi-head attention over their neighbors.
- 
-For a target node $t$ and a source node $s$ connected by an edge $e$, the layer computes a message $M(s,e,t)$ and an attention weight $\alpha(s,e,t)$, and aggregates them as:
+
+HGT~\cite{hgt} conditions attention and message transformation on the source node type, edge type, and target node type. We describe an edge $e_{s,t}$ from node $s$ to node $t$ by the meta-relation $\langle \tau(s), \phi(e_{s,t}), \tau(t) \rangle$. For example, $\langle \text{folder}, \text{contains}, \text{file} \rangle$ captures project organization, whereas $\langle \text{file}, \text{depends on}, \text{file} \rangle$ captures code-level coupling.
+
+Node types have different feature spaces depending on the graph variant and initialization strategy. We first map the input vector $x_t$ of each node $t$ into a shared hidden space using a type-specific linear transformation followed by ReLU, which gives its initial representation $h_t^{(0)}$. One HGT layer then updates node representations through multi-head attention over their neighbors.
+
+For each attention head, the layer computes a message $M(s,e,t)$ and an attention weight $\alpha(s,e,t)$ for each source node $s$ connected to a target node $t$ by an edge $e$. We omit attention-head indices for brevity. The weighted messages are aggregated as:
+
 \begin{align}
-m_t &= \sum_{s \in \mathcal{N}(t)}
+\tilde{m}_t &= \sum_{s \in \mathcal{N}(t)}
        \alpha(s,e,t)\, M(s,e,t), \\
 M(s,e,t) &= W^{\mathrm{MSG}}_{\phi(e)}\,
             V_{\tau(s)}\, h_s, \notag
@@ -129,19 +147,22 @@ M(s,e,t) &= W^{\mathrm{MSG}}_{\phi(e)}\,
 \end{equation*}
 \endgroup
 
-\noindent where $\tau(\cdot)$ is the node type, $\phi(e)$ is the edge type, $V$, $K$, and $Q$ are type-specific linear transformations, $W^{\mathrm{MSG}}$ and $W^{\mathrm{ATT}}$ are edge-type-specific matrices, $\mu$ is a learned prior for each meta-relation, $d_h$ is the head dimension, and attention-head indices are omitted for brevity. These parameters allow a \emph{contains} edge from a folder and a \emph{depends\_on} edge from a dependent file to receive different attention weights.
+where $\tau(\cdot)$ is the node type, $\phi(e)$ is the edge type, $V$, $K$, and $Q$ are type-specific linear transformations, $W^{\mathrm{MSG}}$ and $W^{\mathrm{ATT}}$ are edge-type-specific matrices, $\mu$ is a learned prior for each meta-relation, and $d_h$ is the head dimension. These parameters allow a \emph{contains} edge from a folder and a \emph{depends\_on} edge from a dependent file to receive different attention weights.
 
-After combining the attention-head outputs, we denote the resulting message by $m_t$. In our implementation, this message is combined with the node's projected input $h_t^{(0)}$ through a residual connection~\cite{residual_connection} followed by layer normalization:
+In our implementation, the attention-head outputs are combined into a message $m_t$. We add this message to the node's projected input $h_t^{(0)}$ through a residual connection~\cite{residual_connection}, followed by layer normalization:
+
 \begin{equation}
 h_t^{(1)} = \mathrm{LayerNorm}\left(m_t + h_t^{(0)}\right).
 \end{equation}
-Folder and member nodes, when present, contribute to file representations through message passing. 
- 
+
 \subsubsection{Graph Attention Network (GAT)\label{sec:gat_model}}
+
 GAT~\cite{gat} aggregates neighbor representations using attention parameters shared across neighbors within each head, without the node-type- or edge-type-specific parameters of HGT. The outputs of the attention heads are concatenated. Our GAT implementation uses the same input projection, residual connection, and layer normalization as HGT, while replacing its neighbor aggregation mechanism. We add no self-loops; the residual connection retains the node's own representation.
- 
+
 \subsubsection{Classification Head\label{sec:head}}
+
 All three predictors use the same classification head. The file embedding $z_i \in \mathbb{R}^{d}$, obtained from the last hidden layer of the MLP or the message-passing layer of GAT and HGT, is passed to a linear layer that produces one score per architectural module. A softmax converts these scores into a probability distribution:
+
 \begin{equation}
 \label{eq:head}
 \begin{aligned}
@@ -149,4 +170,5 @@ p_i &= \text{softmax}\big(W_c z_i + b_c\big), \\
 \hat{y}_i &= \arg\max_m p_{i,m},
 \end{aligned}
 \end{equation}
+
 where $W_c \in \mathbb{R}^{|M| \times d}$, $b_c \in \mathbb{R}^{|M|}$, and $|M|$ is the number of architectural modules. The predicted module $\hat{y}_i$ is the one with the highest probability. Training minimizes categorical cross-entropy over the labeled file nodes.
