@@ -10,9 +10,9 @@ We evaluate the models on ten open-source systems with published ground-truth (G
 Table~\ref{tab:datasets} summarizes the system and graph properties. File-level dependency homophily $\mathcal{H}$ is the proportion of unique directed file pairs connected by a static dependency whose source and target files fall within the same GT module, from 0 (every dependency crosses a module boundary) to 1 (every dependency stays within a module). The mean degree $\langle k \rangle = 2|E|/|\text{Files}|$ counts each of the $|E|$ directed file-level dependency edges at both of its files.
 
 \begin{table}[h]
-\centering\small
+\centering
 \caption{Subject systems and their file-level dependency graph properties. \(M\): number of modules in the GT; \(|E|\): number of directed file-level static dependencies; \(\mathcal{H}\): dependency homophily; \(\langle k \rangle\): mean degree.\label{tab:datasets}}
-\renewcommand{\arraystretch}{1.1}
+\renewcommand{\arraystretch}{1.2}
 \begin{adjustbox}{max width=\columnwidth}
 \begin{tabular}{c l l r r r c r}
 \toprule

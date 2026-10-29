@@ -7,15 +7,15 @@ For RQ1 and RQ2, we report median macro- and micro-F1 scores over the 100 runs p
 % ========================================
 \subsection{Comparing Lexical, Structural, and Contextual File Representations (RQ1)\label{sec:rq1}}
 
-RQ1 examines how much predictive information each file representation provides before additional graph-based message passing. Table~\ref{tab:rq1_mlp_features} reports the median macro-F1 and micro-F1 scores obtained with Word2Vec, Node2Vec, and UniXcoder variants: \zs{} and \ft{}. Each representation is evaluated using the MLP.
+RQ1 examines the mapping performance of each file representation before additional graph-based message passing. Table~\ref{tab:rq1_mlp_features} reports the median macro-F1 and micro-F1 scores obtained using the MLP with Word2Vec, Node2Vec, and the two UniXcoder variants, \zs{} and \ft{}.
+
+Table~\ref {tab:rq1_stats} summarizes the pairwise differences across all ten systems, with the number of systems favoring each method and the number of Holm-significant differences in each direction.
 
 % _________ Results table __________
 \input{generated/rq1_mlp_features}
-Macro-F1 is lower than micro-F1 for every system and representation. Node2Vec achieves the highest median macro- and micro-F1 scores on six systems. On the other four systems, \ft{} obtains the highest median micro-F1, while the highest median macro-F1 is held by \ft{} on T.Mates and HDC, Word2Vec on JabRef, and \zs{} on SH-3D.
-
-\parg{Statistical significance of observed differences.} Table~\ref {tab:rq1_stats} summarizes the pairwise differences across all ten systems, with the number of systems favoring each method and the number of Holm-significant differences in each direction.
-% _________ Stats table __________
 \input{generated/rq1_stats}
+
+Table~\ref{tab:rq1_mlp_features} shows that macro-F1 is lower than micro-F1 for every system and representation. Node2Vec achieves the highest median macro- and micro-F1 scores on six systems. On the other four systems, \ft{} obtains the highest median micro-F1, while the highest median macro-F1 is held by \ft{} on T.Mates and HDC, Word2Vec on JabRef, and \zs{} on SH-3D.
 
 We first compare Word2Vec and \zs{}, the two representations that do not encode dependencies. They do not separate consistently: the significant differences fall in both directions, although \zs{} is favored on more systems. On macro-F1, \zs{} is significantly stronger on A.UML (medium effect), C.Img, SH-3D, T.Mates, Bash, and HDF (large effects), whereas Word2Vec is significantly stronger on JabRef (large effect), Lucene and Chrome (medium effects), and HDC (small effect). On micro-F1, \zs{} is significantly stronger on the same six systems, and Word2Vec is significantly stronger on JabRef and Lucene (large effects) and HDC (small effect); the difference in Chrome is not significant.
 
@@ -96,12 +96,12 @@ Differences are paired changes in F1 points, enabled minus disabled; positive va
 This comparison differs from RQ2, where file-level message passing (F) is compared with the MLP, which changes the predictor together with the available structure. Here the predictor is fixed, and dependency neighbors are enabled and disabled, so a gain of F over the MLP does not imply that HGT benefits from dependency neighbors. With Node2Vec, for example, F raises the median macro-F1 over the MLP, whereas HGT with directed neighbors is lower than HGT without neighbors.
 
 \input{generated/rq3_systems_body}
-\parg{Does the direction of neighbor aggregation matter?} The preferred direction depends on the system. Undirected aggregation gives the higher median in almost every cell of Table~\ref{tab:rq3_reps}. However, several systems favor directed aggregation. Figure~\ref{fig:rq3_direction} shows gains from undirected aggregation on five to eight systems per combination of predictor and input representation, with significant differences in both directions.
 
+\parg{Does the direction of neighbor aggregation matter?} The preferred direction depends on the system. Undirected aggregation gives the higher median in almost every cell of Table~\ref{tab:rq3_reps}. However, several systems favor directed aggregation. Figure~\ref{fig:rq3_direction} shows gains from undirected aggregation on five to eight systems per combination of predictor and input representation, with significant differences in both directions.
 \begin{figure}[h]
 \centering
 \includegraphics[width=1\columnwidth]{Images/rq3_direction_f1_macro.pdf}
-\caption{\fontsize{9.2}{12}\selectfont Macro-F1 differences (undirected $-$ directed), in F1 points, by predictor and input representation. Each point shows median paired differences over 100 splits; negative values favor directed aggregation. Hollow markers indicate non-significant differences.\label{fig:rq3_direction}}
+\caption{Macro-F1 differences (undirected $-$ directed), in F1 points, by predictor and input representation. Each point shows median paired differences over 100 splits; negative values favor directed aggregation. Hollow markers indicate non-significant differences.\label{fig:rq3_direction}}
 \end{figure}
 On macro-F1, SH-3D, T.Mates, and JabRef score higher with directed aggregation in all 12 combinations, and C.Img in eight. Lucene, Bash, Chrome, and HDC score higher with undirected aggregation in all 12 combinations, and A.UML and HDF in 11. The largest differences are 14.6 points in favor of undirected aggregation (Bash, Word2Vec, \mlp{}) and 8.7 points in favor of directed aggregation (T.Mates, Word2Vec, \mlp{}). Micro-F1 shows the same directional pattern for seven systems, while JabRef, C.Img, and A.UML show mixed results. Adding reverse edges also expands the neighborhood, so this comparison does not isolate propagation direction from neighborhood size.
 
