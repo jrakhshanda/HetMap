@@ -1,40 +1,29 @@
-\documentclass[twocolumn]{svjour3}
-\smartqed
-
-\usepackage{titlesec}
-% \titlespacing*{\subsection}{0pt}{4ex plus 3ex minus 0.5ex}{0.8ex plus 0.2ex}
-\titlespacing*{\subsubsection}{0pt}{2ex plus 2ex minus 0.3ex}{0.8ex plus 0.5ex}
+\PassOptionsToPackage{table,dvipsnames}{xcolor}   % must come before the class
+\documentclass[sigconf,nonacm]{acmart}
 % ================= PREAMBLE =================
-\usepackage[numbers]{natbib}
-\usepackage[T1]{fontenc}
-\usepackage[english]{babel}
-\usepackage{microtype}
 \sloppy
 
-% Math, symbols (Loaded early to prevent option clashes)
-\usepackage{amsmath}
-\usepackage{mathptmx}   % Selects Times Roman font
-\usepackage{amssymb}
+% Math, symbols
+% \usepackage{amssymb}
 \usepackage{pifont}
 \usepackage[mathcal]{euscript}
 \newcommand{\cmark}{\ding{51}}
 \newcommand{\xmark}{\ding{55}}
 \usepackage{placeins}
+
 % Tables, colors
 \usepackage{float}
-\usepackage[table,dvipsnames]{xcolor}
-\usepackage{colortbl,hhline}
-\usepackage{booktabs}
-% \usepackage{cellspace}
+\usepackage{hhline}
 \usepackage{makecell}
 \usepackage[most]{tcolorbox}
 \usepackage{threeparttable}
+
 % Figures
-\usepackage{graphicx}
 \usepackage{subcaption}
 \usepackage{tikz}
 \usepackage{standalone}
 \usetikzlibrary{arrows.meta,shapes.geometric}
+
 % Algorithms
 \usepackage[ruled,vlined]{algorithm2e}
 \usepackage{algpseudocode}
@@ -61,11 +50,10 @@
 \usepackage{arydshln}
 \usepackage{multirow}
 
-% Hyperlinks and references (MUST be loaded last in almost all cases)
-\usepackage{hyperref}
 % ================= CUSTOM FORMATTING =================
 \newtcolorbox{GrayBox}[2][]{%
   enhanced,
+  float=htbp,
   width=\columnwidth,
   colback=gray!10,
   colframe=black!70,
@@ -73,10 +61,10 @@
   boxrule=0.5pt,
   left=1ex,
   right=1ex,
-  top=1ex,
-  bottom=1ex,
-  before skip=6pt,
-  after skip=0pt,
+  top=0.5ex,
+  bottom=0.5ex,
+  before skip=4pt,
+  after skip=4pt,
   title=#2,
   #1
 }
@@ -96,18 +84,15 @@
 \definecolor{lossbase}{HTML}{CAB2D6}
 \newcommand{\gc}[1]{\cellcolor{gainbase!#1!white}}
 \newcommand{\rc}[1]{\cellcolor{lossbase!#1!white}}
+
 % ================= MODEL SHORTHANDS =================
-% Embedding variants
 \newcommand{\zs}{UXC\textsubscript{ZS}}
 \newcommand{\ft}{UXC\textsubscript{FT}}
 \newcommand{\mlp}{$\mathcal{N}$\textsubscript{MLP}}
-% Graph structural variants
-% \newcommand{\mlp}[1]{#1$_{\text{MLP}}$}
 \newcommand{\f}[1]{#1$_{\text{F}}$}
 \newcommand{\ff}[1]{#1$_{\text{FF}}$}
 \newcommand{\fm}[1]{#1$_{\text{FM}}$}
 \newcommand{\ffm}[1]{#1$_{\text{FFM}}$}
-
 \newcommand{\uhgt}{HGT{-U}}
 
 % ================= PAPER METADATA =================
@@ -116,56 +101,48 @@ Code-to-architecture mapping assigns source files to modules of a reference arch
 
 Representations encoding dependency information outperform lexical representations on most systems. Additional neighbor aggregation can improve mapping, depending on the predictor and aggregation direction. Folder-aware variants yield the largest and most consistent gains across the evaluated HGT configurations. However, the directory rule achieves per-system median accuracy of 89–100\%, and adding folder information does not consistently improve predictions for files the rule misclassifies. Member nodes provide no consistent improvement over file-level graphs. These findings support assessing what file representations and directory organization already provide before attributing improvements to graph neural networks.
 }
-\newcommand{\paperkeywords}{%
-Code-to-Architecture Mapping \and
-Software Architecture \and
-Graph Neural Networks \and
-Heterogeneous Graphs \and
-Representation Learning
-}
 
-% ================= DOCUMENT =================
-\begin{document}
-
+% ================= TITLE, AUTHORS, ABSTRACT =================
 \title{What Carries Architectural Signal? A Code-to-Architecture Mapping Study}
-\titlerunning{What Carries Architectural Signal?}
-\authorrunning{Jabeen et al.}
 
-% _________________
-\author{Rakhshanda Jabeen \and
-        Morgan Ericsson \and
-        Yuyao Duan \and
-        Anna Wingkvist}
-
-\institute{%
-Rakhshanda Jabeen \at
-Electrolux Professional AB, Ljungby, Sweden \\
-Linnaeus University, Växjö, Sweden \\
+\author{Rakhshanda Jabeen}
+\affiliation{\institution{Electrolux Professional AB}\city{Ljungby}\country{Sweden}}
+\affiliation{\institution{Linnaeus University}\city{V\"axj\"o}\country{Sweden}}
 \email{rakhshanda.jabeen@electroluxprofessional.com}
-\and
-Morgan Ericsson \at
-Linnaeus University, Växjö, Sweden \\
-\email{morgan.ericsson@lnu.se}
-\and
-Yuyao Duan \at
-Linnaeus University, Växjö, Sweden \\
-\email{yuyaoduan4@gmail.com}
-\and
-Anna Wingkvist \at
-Linnaeus University, Växjö, Sweden \\
-\email{anna.wingkvist@lnu.se}
-}
-% _________________
 
-\date{Received: date / Accepted: date}
-\journalname{Empirical Software Engineering}
-\maketitle
-\noindent\textbf{Local review draft, 5 October 2026.} Full-dataset results integrated; manuscript and review artifacts remain unpublished.
+\author{Morgan Ericsson}
+\affiliation{\institution{Linnaeus University}\city{V\"axj\"o}\country{Sweden}}
+\email{morgan.ericsson@lnu.se}
+
+\author{Yuyao Duan}
+\affiliation{\institution{Linnaeus University}\city{V\"axj\"o}\country{Sweden}}
+\email{yuyaoduan4@gmail.com}
+
+\author{Anna Wingkvist}
+\affiliation{\institution{Linnaeus University}\city{V\"axj\"o}\country{Sweden}}
+\email{anna.wingkvist@lnu.se}
 
 \begin{abstract}
 \paperabstract
-\keywords{\paperkeywords}
 \end{abstract}
+
+\keywords{Code-to-Architecture Mapping, Software Architecture, Graph Neural Networks, Heterogeneous Graphs, Representation Learning}
+
+% ================= DOCUMENT =================
+% ================= DOCUMENT =================
+\begin{document}
+\makeatletter
+\renewcommand\subsubsection{%
+  \@startsection{subsubsection}{3}{\z@}%
+    {-1.5ex plus -0.5ex minus -0.2ex}%
+    {0.5ex plus 0.2ex}%
+    {\normalfont\normalsize\itshape}%
+}
+\let\ACM@origsubsubsection\subsubsection
+\makeatother
+
+\raggedbottom
+\maketitle
 
 \input{1a_introduction}
 %\input{1b_background}
@@ -177,8 +154,7 @@ Linnaeus University, Växjö, Sweden \\
 \input{6_threats}
 \input{7_conclusion}
 
-\footnotesize
-\bibliographystyle{spbasic}
+\bibliographystyle{ACM-Reference-Format}
 \bibliography{References}
 
 \end{document}
