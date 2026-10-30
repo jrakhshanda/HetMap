@@ -1,0 +1,157 @@
+\PassOptionsToPackage{table,dvipsnames}{xcolor}   % must come before the class
+\documentclass[sigconf,nonacm]{acmart}
+
+\makeatletter
+\renewcommand\subsubsection{%
+  \@startsection{subsubsection}{3}{\z@}%
+    {-1.5ex plus -0.5ex minus -0.2ex}%
+    {0.5ex plus 0.2ex}%
+    {\normalfont\normalsize\itshape}%
+}
+\makeatother
+% ================= PREAMBLE =================
+\sloppy
+
+% Math, symbols
+\usepackage{amssymb}
+\usepackage{pifont}
+\usepackage[mathcal]{euscript}
+\newcommand{\cmark}{\ding{51}}
+\newcommand{\xmark}{\ding{55}}
+\usepackage{placeins}
+
+% Tables, colors
+\usepackage{float}
+\usepackage{hhline}
+\usepackage{makecell}
+\usepackage[most]{tcolorbox}
+\usepackage{threeparttable}
+
+% Figures
+\usepackage{subcaption}
+\usepackage{tikz}
+\usepackage{standalone}
+\usetikzlibrary{arrows.meta,shapes.geometric}
+
+% Algorithms
+\usepackage[ruled,vlined]{algorithm2e}
+\usepackage{algpseudocode}
+
+% Floats and page layout
+\usepackage{xurl}
+
+% Text and lists
+\usepackage{enumitem}
+
+% Numbers and units
+\usepackage[
+  separate-uncertainty = true,
+  multi-part-units = repeat
+]{siunitx}
+
+% Tables: flexible and dashed-line support
+\usepackage{adjustbox}
+\usepackage{array}
+\usepackage{longtable}
+\usepackage{tabularx}
+\usepackage{ragged2e}
+\newcolumntype{Y}{>{\raggedright\arraybackslash}X}
+\usepackage{arydshln}
+\usepackage{multirow}
+
+% ================= CUSTOM FORMATTING =================
+\newtcolorbox{GrayBox}[2][]{%
+  enhanced,
+  float=htbp,
+  width=\columnwidth,
+  colback=gray!10,
+  colframe=black!70,
+  arc=1mm,
+  boxrule=0.5pt,
+  left=1ex,
+  right=1ex,
+  top=0.5ex,
+  bottom=0.5ex,
+  before skip=4pt,
+  after skip=4pt,
+  title=#2,
+  #1
+}
+
+\newcommand{\dsc}[1]{%
+  \par\medskip
+  \noindent\textbf{#1}\par\vspace{0.5em}
+}
+
+\newcommand{\parg}[1]{%
+  \par\medskip \noindent\textbf{\textit{#1}}\quad%
+}
+
+\newcommand{\best}[1]{\cellcolor{gray!25}{#1}}
+\newcommand{\nb}[1]{\cellcolor{pink!30}{#1}}
+\definecolor{gainbase}{HTML}{A6CEE3}
+\definecolor{lossbase}{HTML}{CAB2D6}
+\newcommand{\gc}[1]{\cellcolor{gainbase!#1!white}}
+\newcommand{\rc}[1]{\cellcolor{lossbase!#1!white}}
+
+% ================= MODEL SHORTHANDS =================
+\newcommand{\zs}{UXC\textsubscript{ZS}}
+\newcommand{\ft}{UXC\textsubscript{FT}}
+\newcommand{\mlp}{$\mathcal{N}$\textsubscript{MLP}}
+\newcommand{\f}[1]{#1$_{\text{F}}$}
+\newcommand{\ff}[1]{#1$_{\text{FF}}$}
+\newcommand{\fm}[1]{#1$_{\text{FM}}$}
+\newcommand{\ffm}[1]{#1$_{\text{FFM}}$}
+\newcommand{\uhgt}{HGT{-U}}
+
+% ================= PAPER METADATA =================
+\newcommand{\paperabstract}{%
+Code-to-architecture mapping assigns source files to modules of a reference architecture. Representations of implementation artifacts can capture code text, dependencies, and directory organization, but predictive gains alone do not establish the contribution of additional graph processing. Dependencies may already be encoded in these representations, while directories may closely match the reference decomposition. We investigate how artifact representations and graph context affect mapping on ten Java, C, and C++ systems with a limited labeling budget. We compare lexical, structural, and contextual file representations and assess each predictor with and without dependency neighbors. Using a Heterogeneous Graph Transformer (HGT), we compare file-level graphs extended with member nodes summarizing each file’s program elements, folder nodes, or both, alongside a variant encoding folder paths directly in file representations. We compare folder-aware predictions with a directory rule using the same labeled files.
+
+Representations encoding dependency information outperform lexical representations on most systems. Additional neighbor aggregation can improve mapping, depending on the predictor and aggregation direction. Folder-aware variants yield the largest and most consistent gains across the evaluated HGT configurations. However, the directory rule achieves per-system median accuracy of 89–100\%, and adding folder information does not consistently improve predictions for files the rule misclassifies. Member nodes provide no consistent improvement over file-level graphs. These findings support assessing what file representations and directory organization already provide before attributing improvements to graph neural networks.
+}
+
+% ================= TITLE, AUTHORS, ABSTRACT =================
+\title{What Carries Architectural Signal? A Code-to-Architecture Mapping Study}
+
+\author{Rakhshanda Jabeen}
+\affiliation{\institution{Electrolux Professional AB}\city{Ljungby}\country{Sweden}}
+\affiliation{\institution{Linnaeus University}\city{V\"axj\"o}\country{Sweden}}
+\email{rakhshanda.jabeen@electroluxprofessional.com}
+
+\author{Morgan Ericsson}
+\affiliation{\institution{Linnaeus University}\city{V\"axj\"o}\country{Sweden}}
+\email{morgan.ericsson@lnu.se}
+
+\author{Yuyao Duan}
+\affiliation{\institution{Linnaeus University}\city{V\"axj\"o}\country{Sweden}}
+\email{yuyaoduan4@gmail.com}
+
+\author{Anna Wingkvist}
+\affiliation{\institution{Linnaeus University}\city{V\"axj\"o}\country{Sweden}}
+\email{anna.wingkvist@lnu.se}
+
+\begin{abstract}
+\paperabstract
+\end{abstract}
+
+\keywords{Code-to-Architecture Mapping, Software Architecture, Graph Neural Networks, Heterogeneous Graphs, Representation Learning}
+
+% ================= DOCUMENT =================
+\begin{document}
+\maketitle
+
+\input{1a_introduction}
+%\input{1b_background}
+\input{2a_methodology}
+\input{2b_experiemnts}
+\input{3a_results}
+\input{4_discussion}
+\input{5_related_work}
+\input{6_threats}
+\input{7_conclusion}
+
+\bibliographystyle{ACM-Reference-Format}
+\bibliography{References}
+
+\end{document}

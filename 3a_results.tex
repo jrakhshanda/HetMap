@@ -32,7 +32,7 @@ Representations that encode dependencies, either directly through random walks (
 % ========================================
 % ----------------- RQ2 ------------------
 % ========================================
-\subsection{Message Passing over Dependency Edges and through Member and Folder Nodes (RQ2) \label{sec:rq2}}
+\subsection{Message Passing over Dependency Edges, Member Nodes, and Folder Nodes (RQ2) \label{sec:rq2}}
 
 RQ2 examines how mapping performance changes for each representation when message passing over the file dependency graph is added and the graph is extended with folder and member nodes. Figure~\ref{fig:rq2_lineplot} reports median macro- and micro-F1 for the MLP and HGT under F, FF, FM, and FFM. We use Word2Vec, Node2Vec, and the fine-tuned variant \ft{}, which improves over \zs{} on nearly all systems in RQ1.
 % F adds message passing over file dependencies, FF adds folder nodes, FM adds member nodes, and FFM adds both.
@@ -41,8 +41,8 @@ Table~\ref{tab:rq2_steps} summarizes five steps: MLP to F, adding members (F to 
 %_______________
 \begin{figure*}[htb]
 \centering
-\includegraphics[width=0.98\textwidth]{Images/RQ2_lineplot_f1_macro.pdf}
-\includegraphics[width=0.98\textwidth]{Images/RQ2_lineplot_f1_micro.pdf}
+\includegraphics[width=1\textwidth]{Images/RQ2_lineplot_f1_macro.pdf}
+\includegraphics[width=1\textwidth]{Images/RQ2_lineplot_f1_micro.pdf}
 \caption{Median macro-F1 (top) and micro-F1 (bottom) for each representation, per system, across the MLP and HGT with increasing graph structure (F, FF, FM, FFM). Shaded areas denote interquartile ranges across the 100 runs. \label{fig:rq2_lineplot}}
 \end{figure*}
 \input{generated/rq2_stats}
@@ -50,18 +50,23 @@ Table~\ref{tab:rq2_steps} summarizes five steps: MLP to F, adding members (F to 
 
 \parg{File-level HGT versus the MLP.} Moving from the MLP to file-level HGT improves Word2Vec and \ft{} more than Node2Vec. For Word2Vec and \ft{}, the improvement is positive on nine systems on both metrics, and the only significant loss is \ft{} on HDC macro-F1. For Node2Vec, the changes are small, and significant losses occur on Lucene and HDC for both metrics and on HDF for macro-F1, but significant gains still outnumber losses on both metrics.
 
-\parg{Member-level context.} Adding member nodes to F lowers median macro-F1 and micro-F1 for every representation, most strongly for Word2Vec, with large effects on all ten systems. Significant macro-F1 losses outnumber gains for every representation. Adding member nodes also changes how features enter the model, depending on the representation (Section~\ref{sec:node_features}); for example, the \ft{} member vectors come from an encoder fine-tuned on file-level text. In addition, with one HGT layer, member-level dependencies cannot affect file predictions, so we test two layers below. These results therefore concern the evaluated member configuration, not member information in general.
+\parg{Member-level context.} Adding member nodes to F lowers median macro-F1 and micro-F1 for every representation, most strongly for Word2Vec, with large effects on all ten systems. Significant macro-F1 losses outnumber gains for every representation. Adding member nodes also changes how features enter the model, depending on the representation (Section~\ref{sec:node_features}); for example, the \ft{} member vectors come from an encoder fine-tuned on file-level text. 
+
+In addition, with one HGT layer, member-level dependencies cannot affect file predictions, so we test two layers in Section~\ref{sec:mp_depth}. These results therefore concern the evaluated member configuration, not member information in general.
 
 \parg{Folder-level context.}
 Adding folder nodes produces the largest and most consistent changes. FF improves over F, and FFM improves over FM, on both metrics for every system and representation. All 120 system--representation--metric comparisons are significant with a large effect, and each improves in at least 96 of the 100 paired runs.
 
 Within the folder-containing configurations, the effect of adding member nodes depends on the representation. FFM improves over FF for Node2Vec and \ft{} on both metrics, with small median gains, but lowers both metrics for Word2Vec. The significant macro-F1 losses for Node2Vec and \ft{} occur on JabRef, Bash, and Chrome. For micro-F1, Node2Vec loses significantly only on Bash, and \ft{} on no system.
 
-\subsubsection{Depth of message-passing layers}
-To test whether using one HGT layer limits the results, we repeated F, FF, FM, and FFM with two layers, using the same labeled sets, representations, and training settings (Table~\ref{tab:rq2_depth}). For Word2Vec, the largest median macro-F1 improvements occur in FM and FFM. For \ft{}, FF improves more than FFM, so the improvement is not specific to member nodes. Node2Vec shows little change in either member-containing configuration, but F is significantly lower on macro-F1 on five systems.
+\subsubsection{Depth of message-passing layers \label{sec:mp_depth}}
+To test whether using one HGT layer limits the results, we repeated F, FF, FM, and FFM with two layers, using the same labeled sets, representations, and training settings. Table~\ref{tab:rq2_depth} reports the results.
+
+\input{generated/rq2_sensitivity}
+
+For Word2Vec, the largest median macro-F1 improvements occur in FM and FFM. For \ft{}, FF improves more than FFM, so the improvement is not specific to member nodes. Node2Vec shows little change in either member-containing configuration, but F is significantly lower on macro-F1 on five systems.
 
 At matched two-layer depth, adding members to F still lowers median macro-F1 for all three representations. Adding members to FF remains negative for Word2Vec, while the small median gain for \ft{} shrinks and that for Node2Vec becomes slightly negative. Folder nodes retain the largest gains: both folder additions improve both metrics on all ten systems for every representation, with significant large effects. Thus, additional depth improves some configurations but does not establish a consistent benefit from adding member nodes.
-\input{generated/rq2_sensitivity}
 
 We also examined whether the macro-F1 change from one to two message-passing layers in FM and FFM relates to average file-level degree across the ten systems. Exploratory Kendall's $\tau$ analyses~\cite{kendall} show positive associations in FFM across all three representations, but in FM mainly with Word2Vec.
 
@@ -97,13 +102,15 @@ This comparison differs from RQ2, where file-level message passing (F) is compar
 
 \input{generated/rq3_systems_body}
 
-\parg{Does the direction of neighbor aggregation matter?} The preferred direction depends on the system. Undirected aggregation gives the higher median in almost every cell of Table~\ref{tab:rq3_reps}. However, several systems favor directed aggregation. Figure~\ref{fig:rq3_direction} shows gains from undirected aggregation on five to eight systems per combination of predictor and input representation, with significant differences in both directions.
+\parg{Does the direction of neighbor aggregation matter?} Undirected aggregation gives the higher median in almost every cell of Table~\ref{tab:rq3_reps}, but the preferred direction depends on the system. Figure~\ref{fig:rq3_direction} shows gains from undirected aggregation on five to eight systems per combination of predictor and input representation, with significant differences in both directions.
+
+On macro-F1, SH-3D, T.Mates, and JabRef score higher with directed aggregation in all 12 combinations, and C.Img in eight. Lucene, Bash, Chrome, and HDC score higher with undirected aggregation in all 12 combinations, and A.UML and HDF in 11. The largest differences are 14.6 points in favor of undirected aggregation (Bash, Word2Vec, \mlp{}) and 8.7 points in favor of directed aggregation (T.Mates, Word2Vec, \mlp{}). Micro-F1 shows the same directional pattern for seven systems, while JabRef, C.Img, and A.UML show mixed results. Adding reverse edges also expands the neighborhood, so this comparison does not isolate propagation direction from neighborhood size.
+
 \begin{figure}[h]
 \centering
 \includegraphics[width=1\columnwidth]{Images/rq3_direction_f1_macro.pdf}
 \caption{Macro-F1 differences (undirected $-$ directed), in F1 points, by predictor and input representation. Each point shows median paired differences over 100 splits; negative values favor directed aggregation. Hollow markers indicate non-significant differences.\label{fig:rq3_direction}}
 \end{figure}
-On macro-F1, SH-3D, T.Mates, and JabRef score higher with directed aggregation in all 12 combinations, and C.Img in eight. Lucene, Bash, Chrome, and HDC score higher with undirected aggregation in all 12 combinations, and A.UML and HDF in 11. The largest differences are 14.6 points in favor of undirected aggregation (Bash, Word2Vec, \mlp{}) and 8.7 points in favor of directed aggregation (T.Mates, Word2Vec, \mlp{}). Micro-F1 shows the same directional pattern for seven systems, while JabRef, C.Img, and A.UML show mixed results. Adding reverse edges also expands the neighborhood, so this comparison does not isolate propagation direction from neighborhood size.
 
 \parg{Which predictor scores highest?} Figure~\ref{fig:rq3_agg} pools the ten systems with undirected neighbors: each point is the median of one system and the boxes show the spread across systems. GAT has the highest median macro-F1 with every representation and the highest median micro-F1 with every representation except Node2Vec, where HGT is marginally higher. GAT also scores highest most often: in each split we count which of the four predictors scores highest, and GAT has the largest share of wins, averaged over systems, with every representation and on both metrics. All three predictors with neighborhood aggregation exceed the MLP without neighbors in every median comparison. As without neighbors, \ft{} has the highest median macro-F1 across systems for every predictor, with GAT and \ft{} giving the highest scores overall.
 

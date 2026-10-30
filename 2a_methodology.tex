@@ -25,7 +25,7 @@ To study the individual and combined contributions of folder and member informat
 
 \begin{figure}[h]
 \centering
-\resizebox{0.97\linewidth}{!}{\input{Images/graph_variants.tex}}
+\resizebox{0.95\linewidth}{!}{\input{Images/graph_variants.tex}}
 \caption{Graph variants F, FM, FF, and FFM. Files $f_i$ are the prediction targets, and each $m_i$ aggregates the members of file $f_i$. Arrows point from source to target: dashed arrows are structural relations and solid arrows are dependencies. Relation names are shown on FFM only. The panels omit further dependency edges and folder levels; Table~\ref{tab:relation_types} lists the relations with the node types they connect. Feature initialization also depends on the variant, as described in Section~\ref{sec:node_features}.}
 \label{fig:graph_variants_overview}
 \end{figure}
@@ -61,7 +61,7 @@ Relation & Source $\to$ target & Description \\
 \emph{belongs\_to}
 & member $\to$ file
 & Links a member node to its file. \\
-
+\addlinespace[4pt]
 \multirow{2}{*}{\emph{depends\_on}}
 & file $\to$ file
 & File-level dependencies. \\
